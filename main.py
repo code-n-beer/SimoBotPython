@@ -19,12 +19,12 @@ from multiprocessing import Queue
 
 print sys.version
 
-server = "localhost"       #settings
+server = "irc.nebula.fi"       #settings
 channel = "#SimoBot"
-botnick = "SimoBot"
+botnick = "PizzaBot"
 #username = "simobot"
 passwd = "herpderp"
-port = 7501
+port = 6667
 
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #defines the socket
 print "connecting to:"+server
