@@ -58,8 +58,10 @@ loadFeatures()
 print commands
 
 def sendMsg(irc, message):
-    nick, msg, channel = message
-    irc.send("PRIVMSG " + channel.encode('utf-8') + " :" + nick.encode('utf-8') + ": "+ msg.encode('utf-8') + "\r\n");
+    msg, channel = message
+    msg = msg.replace("\n","");
+    msg = msg.replace("\r\n","");
+    irc.send("PRIVMSG " + channel.encode('utf-8') + " :" + msg.encode('utf-8') + "\r\n");
 
 def sendPong(pong):
     irc.send(pong)
