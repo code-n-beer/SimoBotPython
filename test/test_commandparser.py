@@ -47,6 +47,16 @@ class TestCommandParser(unittest.TestCase):
         self.assertEqual(parser.parse("command help").handler, int)
         self.assertEqual(parser.parse("command xxx"), (str, "xxx"))
 
+    def test_level_3_match(self):
+        parser = CommandParser()
+        parser.add("c1").add("c2").add("c3", int)
+        parser.add("c1").add("c2", str)
+
+        self.assertEqual(parser.parse("c1 c2 c3 xxx"), (int, "xxx"))
+        self.assertEqual(parser.parse("c1 c2 c3 "), (int, ""))
+        self.assertEqual(parser.parse("c1 c2 xxx"), (str, "xxx"))
+        self.assertEqual(parser.parse("c1"), None)
+
 
 
 
