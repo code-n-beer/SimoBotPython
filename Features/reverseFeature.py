@@ -11,4 +11,4 @@ class uguuFeature:
         msg = " ".join(message.split()[1:])
         msg = msg[::-1]
         print "testink: " + msg
-        queue.put((nick, msg, channel))
+        queue.put((msg, channel))

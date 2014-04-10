@@ -20,4 +20,4 @@ class reverseFeature:
         count = random.randint(1,16);
         uguu = nick + ("u" * count)
         print "executed varjouguu"
-        queue.put((nick, uguu, channel))
+        queue.put((uguu, channel))
