@@ -20,7 +20,6 @@ paprika
 parsa
 pekoni
 pepperonimakkara
-persikka
 salami
 simpukka
 sipuli
