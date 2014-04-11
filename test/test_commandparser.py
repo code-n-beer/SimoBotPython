@@ -29,6 +29,8 @@ class TestCommandParser(unittest.TestCase):
 
         self.assertEqual(parser.parse("x!command"), None)
 
+        self.assertEqual(parser.parse("!command\n").handler, int)
+
     def test_adding_level_2_command(self):
         parser = CommandParser()
         parser.add("command").add("help", int)

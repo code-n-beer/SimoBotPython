@@ -30,7 +30,7 @@ class CommandParser:
            Named tuple with fields handler and arguments if successful,
            otherwise None.
         """
-        partition = msg.partition(" ")
+        partition = msg.rstrip().partition(" ")
         command = partition[0]
         rest = partition[2].lstrip()
 
