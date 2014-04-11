@@ -10,5 +10,4 @@ class uguuFeature:
     def execute(self, queue, nick, message, channel):
         msg = " ".join(message.split()[1:])
         msg = msg[::-1]
-        print "testink: " + msg
         queue.put((msg, channel))

@@ -67,13 +67,13 @@ def sendPong(pong):
     irc.send(pong)
 
 
-while 1:    #puts it in a loop
+while 1:
     time.sleep(0.025)
     irc.setblocking(0)
 
-    inputr, outputr, exceptr = select.select([irc],[irc],[])
+    inputReady, outputReady, exceptr = select.select([irc],[irc],[])
 
-    if outputr:
+    if outputReady:
         if not q.empty():
             result = q.get()
             #print "got result: " + result
@@ -81,7 +81,7 @@ while 1:    #puts it in a loop
         if not pongQueue.empty():
             sendPong(pongQueue.get())
 
-    if not inputr:
+    if not inputReady:
         #print "not ready"
         continue
 
@@ -95,7 +95,14 @@ while 1:    #puts it in a loop
 
     print text
 
-    text = text.decode('utf-8')
+    try:
+        text = text.decode('utf-8')
+        print "was utf8"
+    except UnicodeDecodeError:
+        text = text.decode('latin-1')
+        print "was latin"
+
+    #print type(text)
 
     if text.find('PING') != -1:                          #check if 'PING' is found
         #irc.send() #returns 'PONG'
@@ -121,6 +128,10 @@ while 1:    #puts it in a loop
         #loadFeatures(False)
         #reload(Features)
         #irc.send("PRIVMSG " + channel + " :sis t. varjosimo\r\n");
+
+    stringdes = msg.split()
+    if len(stringdes) < 1:
+        continue
 
     cmd = msg.split()[0]
     if cmd in commands.keys():
