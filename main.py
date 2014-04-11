@@ -59,9 +59,16 @@ print commands
 
 def sendMsg(irc, message):
     msg, channel = message
-    msg = msg.replace("\n","");
-    msg = msg.replace("\r\n","");
-    irc.send("PRIVMSG " + channel.encode('utf-8') + " :" + msg.encode('utf-8') + "\r\n");
+    msg = msg.replace("\n","")
+    msg = msg.replace("\r\n","")
+
+    #encode msg with utf-8 if not already
+    try:
+        msg = msg.encode('utf-8')
+    except UnicodeDecodeError:
+        print "msg already utf-8"
+
+    irc.send("PRIVMSG " + channel.encode('utf-8') + " :" + msg + "\r\n")
 
 def sendPong(pong):
     irc.send(pong)
@@ -124,6 +131,8 @@ while 1:
         #reloadModules(modules)
         reload(Features)
         loadFeatures()
+
+        print "Reloaded features"
 
         #loadFeatures(False)
         #reload(Features)
