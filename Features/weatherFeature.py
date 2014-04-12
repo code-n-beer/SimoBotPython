@@ -53,6 +53,11 @@ class weatherFeature:
     #    return directions[int(degrees)]
 
     def execute(self, queue, nick, msg, channel):
+        if len(msg.split()) < 2:
+            queue.put(("Give a location", channel))
+            print "no location given for weather"
+            return
+
         city = "%20".join(msg.split()[1:])
         js = self.callForJSON(city.encode("utf-8"))
 
