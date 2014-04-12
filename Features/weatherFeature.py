@@ -1,3 +1,6 @@
+# Usage !weather <LOCATION>
+# If no location given, defaults to Helsinki
+
 import urllib2
 import json
 
@@ -29,36 +32,53 @@ class weatherFeature:
         js = json.loads(body)
         return js
 
-    #Cant use range as key
-    #def windDirection(self, degrees):
-    #    directions = {
-    #        range(1,10): u"N",
-    #        range(11,33): u"NNE",
-    #        range(34,55): u"NE",
-    #        range(56,78): u"ENE",
-    #        range(79,100): u"E",
-    #        range(101,123): u"ESE",
-    #        range(124,145): u"SE",
-    #        range(146,168): u"SSE",
-    #        range(169,190): u"S",
-    #        range(191,213): u"SSW",
-    #        range(214,235): u"SW",
-    #        range(236,258): u"WSW",
-    #        range(259,280): u"W",
-    #        range(281,303): u"WNW",
-    #        range(304,325): u"NW",
-    #        range(326,348): u"NNW",
-    #        range(349,360): u"N",
-    #        }
-    #    return directions[int(degrees)]
+    # String output for windDirection
+    def windDirection(self, degrees):
+        if 0 <= degrees < 10:
+            return "N"
+        if 10 <= degrees < 33:
+            return "NNE"
+        if 33 <= degrees < 55:
+            return "NE"
+        if 55 <= degrees < 78:
+            return "ENE"
+        if 78 <= degrees < 100:
+            return "E"
+        if 100 <= degrees < 123:
+            return "ESE"
+        if 123 <= degrees < 145:
+            return "SE"
+        if 145 <= degrees < 168:
+            return "SSE"
+        if 168 <= degrees < 190:
+            return "S"
+        if 190 <= degrees < 213:
+            return "SSW"
+        if 213 <= degrees < 235:
+            return "SW"
+        if 235 <= degrees < 258:
+            return "WSW"
+        if 258 <= degrees < 280:
+            return "W"
+        if 280 <= degrees < 303:
+            return "WNW"
+        if 303 <= degrees < 325:
+            return "NW"
+        if 325 <= degrees < 348:
+            return "NNW"
+        if 348 <= degrees <= 360:
+            return "N"
+
+        return
 
     def execute(self, queue, nick, msg, channel):
+        # If no location is given, defaults to Helsinki
         if len(msg.split()) < 2:
-            queue.put(("Give a location", channel))
-            print "no location given for weather"
-            return
+            print "no location given for weather, defaulting to Helsinki"
+            city = "Helsinki"
+        else:
+            city = "%20".join(msg.split()[1:])
 
-        city = "%20".join(msg.split()[1:])
         js = self.callForJSON(city.encode("utf-8"))
 
         if js['count'] < 1:
@@ -73,7 +93,9 @@ class weatherFeature:
         description = js['list'][0]['weather'][0]['description']
         location = js['list'][0]['name']
 
-        weather = location + ": " + str(temp) + u'\u00B0' + "C (" + str(tempMin) + "-" + str(tempMax) + u'\u00B0' + "C), " + str(windSpeed) + "m/s from " + str(windDirection) + ", " + description
+        windDirection = self.windDirection(windDirection)
+
+        weather = location + ": " + str(temp) + u'\u00B0' + "C (" + str(tempMin) + "-" + str(tempMax) + u'\u00B0' + "C), " + str(windSpeed) + "m/s from " + windDirection + ", " + description
 
         print "executed weather"
         queue.put((weather, channel))
