@@ -7,7 +7,7 @@ class reittiopasFeature:
 
     reittiopasApiURI = "http://api.reittiopas.fi/hsl/prod/"
     config = ConfigParser.ConfigParser()
-    config.read("Resources/settings.cnf")
+    config.read("Resources/settings.cfg")
     username = config.get('reittiopas','user')
     password = config.get('reittiopas','pass')
 
