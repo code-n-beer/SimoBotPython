@@ -12,10 +12,16 @@ class horosFeature:
 
 
     def execute(self, queue, nick, msg, channel):
-        msg = msg.split()[1].rstrip()
+        msg = msg.split()
+
+        if len(msg) < 2:
+          queue.put(("supply me with your sign", channel))
+          return
+
+        msg = msg[1].rstrip()
         horosName = self.horokset.get(msg,0)
         if not horosName:
-            queue.put(("why won't you give me a sign~", channel))
+            queue.put(("not a valid sign", channel))
             return
         try:
             horos = urllib2.urlopen("http://www.astro.fi/future/weeklyForecast/sign/" + horosName).read()
@@ -50,7 +56,9 @@ class horosFeature:
 
     def dropHtmlTailingHoroscope(self, html):
         html = html.split("<br />", 1)
-        result = html[0][:-4]
+        result = html[0]
+        if "</p>" in result:
+            result = html[:-4]
 
         if not result or len(result) > 500:
             return "failed to parse HTML (horoscope too long)"
