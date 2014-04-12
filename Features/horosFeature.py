@@ -23,9 +23,7 @@ class horosFeature:
             print "fetching horos failed: " + e.reason
             queue.put(("fetching horos failed: " + e.reason, channel))
             return
-        print "fetched horos"
 
-        print "msg: " + msg
         horos = horos.decode('utf-8')
         horos = self.dropHtmlPrecedingHoroscope(horos,msg)
         horos = self.dropHtmlTailingHoroscope(horos)
@@ -37,7 +35,6 @@ class horosFeature:
 
     def dropHtmlPrecedingHoroscope(self, html, sign):
         sign = sign[1:]
-        print "sign: " + sign
         tagCount = datetime.datetime.today().weekday() + 1
 
         if tagCount > 14 or tagCount < 2:
