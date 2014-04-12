@@ -31,6 +31,8 @@ class reittiopasFeature:
                     + "&"
                     + "user=%s&pass=%s" % (self.username, self.password))
 
+        print fetch_url
+
         try:
             resp = None
             resp = urllib2.urlopen(fetch_url)
@@ -57,6 +59,14 @@ class reittiopasFeature:
 
     def formatTime(self, time):
         return time[-4:-2]+":"+time[-2:] #YYYYMMDDHHMM
+
+    def formatLength(self, length):
+        if length < 1000:
+            return str(int(length)) + "m"
+        return str(int(length/1000)) + "km"
+
+    def formatDuration(self, duration):
+        return str(int(duration/60)) + "min"
 
     def formatCode(self, code):
         if code[:3] == "300":    #local train
@@ -88,6 +98,28 @@ class reittiopasFeature:
             }
         return types[int(type)] + " " + self.formatCode(code).strip()
 
+    def routeBuilder(self, route):
+        legs = len(route[0][0]['legs'])
+
+        #First leg for depTime
+        routeStr = self.formatTime(route[0][0]['legs'][0]['locs'][0]['depTime']) + " > "
+        #Transport legs
+        for i in range(1, legs-1):
+            if i%2 != 0:
+                leg = self.formatTransportTypeAndCode(
+                        route[0][0]['legs'][i]['code'],
+                        route[0][0]['legs'][i]['type'])
+                leg += " from " + route[0][0]['legs'][i]['locs'][0]['name'] + " @" + self.formatTime(route[0][0]['legs'][i]['locs'][0]['depTime']) + " > "
+                routeStr += leg
+        #Last leg for arrival time
+        arrival = len(route[0][0]['legs'][legs-1]['locs'])
+        routeStr += self.formatTime(route[0][0]['legs'][legs-1]['locs'][arrival-1]['arrTime'])
+        #Length and duration
+        length = self.formatLength(route[0][0]['length'])
+        duration = self.formatDuration(route[0][0]['duration'])
+        routeStr += " | " + length + " " + duration
+        return routeStr
+
     def execute(self, queue, nick, msg, channel):
         locations = msg.split()
         if len(locations) != 3:
@@ -101,16 +133,8 @@ class reittiopasFeature:
         d = {'from':start, 'to':destination}
         route = self.callRoute(**d)
 
-        depTime = self.formatTime(route[0][0]['legs'][0]['locs'][0]['depTime'])
         try:
-            firstTransport = self.formatTransportTypeAndCode(
-                    route[0][0]['legs'][1]['code'],
-                    route[0][0]['legs'][1]['type'])
-            firstTransportDepTime = self.formatTime(route[0][0]['legs'][1]['locs'][0]['depTime'])
-            firstStopName = route[0][0]['legs'][1]['locs'][0]['name']
-            result = "Leave at " + depTime + " to " + firstStopName + ", " + firstTransport + " arrives at " + firstTransportDepTime
+            result = self.routeBuilder(route)
         except IndexError:
             result = "Just walk"
-        #Only shows first leg for now, if first leg is not found reittiopas suggests walking
-        #Need to implement display for all legs
         queue.put((result, channel))
