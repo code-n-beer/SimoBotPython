@@ -1,6 +1,7 @@
 import time
 import socket
 import sys
+import ConfigParser
 
 import glob
 import os
@@ -19,17 +20,22 @@ from multiprocessing import Queue
 
 print sys.version
 
-server = "localhost"       #settings
-channel = "#SimoBot"
-botnick = "SimoBot"
-#username = "simobot"
-passwd = "herpderp"
-port = 7501
+configparser = ConfigParser.ConfigParser()
+configparser.read("Resources/settings.cfg")
+
+config = dict(configparser.items("connection"))
+
+server = config['server']       #settings
+channel = config['channel']
+botnick = config['botnick']
+username = config['username']
+passwd = config['password']
+port = int(config['port'])
 
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #defines the socket
 print "connecting to:"+server
 irc.connect((server, port))                                                         #connects to the server
-irc.send("USER "+ botnick +" "+ botnick +" "+ botnick +" :VarjoSimo\n") #user authentication
+irc.send("USER "+ username +" "+ botnick +" "+ botnick +" :VarjoSimo\n") #user authentication
 irc.send("NICK "+ botnick +"\n")                            #sets nick
 #irc.send("PRIVMSG nickserv :iNOOPE\r\n")    #auth
 irc.send("PASS " + passwd + "\n")
