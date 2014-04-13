@@ -6,12 +6,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 class SimoBot(SimpleIRCClient):
 
-    def __init__(self, server, port, nick, channels=[]):
+    def __init__(self, server, port, nick, channels=None):
         super(SimoBot, self).__init__()
         self.connection.set_rate_limit(1)
         self.server = server
         self.port = port
         self.nick = nick
+        if not channels:
+            channels = []
         self.channels = channels
 
     def send_to_chan(self, chan, msg):
