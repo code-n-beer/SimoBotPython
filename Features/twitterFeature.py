@@ -1,5 +1,6 @@
 from twitter import *
 import ConfigParser, os
+import re
 
 class twitterFeature:
 
@@ -13,9 +14,9 @@ class twitterFeature:
     def __init__(self):
         self.cmdpairs = {
     #            "!twitter" : self.execute,
-                "!tweet" : self.tweet#,
-    #            "!follow" : self.follow,
-    #            "!unfollow" :self.unfollow
+                "!tweet" : self.tweet,
+                "!follow" : self.follow,
+                "!unfollow" :self.unfollow
                 }
         self.twitter = Twitter(
             auth=OAuth(
@@ -25,29 +26,65 @@ class twitterFeature:
     #def execute(self, queue, nick, msg, channel):
     #    print "no function yet"
 
-    #Follow user
-    #def follow(self, queue, nick, msg, channel):
-    #    name = msg.split()[1]
-    #    # Doesnt work with Twitter API 1.1, statuses.friends 404s
-    #    following = [x['name'] for x in self.twitter.statuses.friends()]
-    #    if (name in friends):
-    #        print "Already following %s" %(name)
-    #        queue.put(("Already following %s" %(name), channel))
-    #    else:
-    #        try:
-    #            self.twitter.friendships.create(screen_name=name)
-    #        except TwitterError:
-    #            print "Unable to follow %s" % (name)
-    #            queue.put(("%sUnable to follow %s, are you sure the name is correct?" %(
-    #                get_prefix('error'), name)))
-    #            return
+    def follow(self, queue, nick, msg, channel):
+        name = msg.split()[1].strip()
+        if re.search(r'[^\w]', name) or not (1 <= len(name) <= 15):
+            print "invalid username"
+            queue.put(("Invalid username", channel))
+            return
 
-    #    print "executed follow"
-    #    queue.put(("Now following %s!" %(name)))
+        try:
+            user = self.twitter.friendships.lookup(screen_name=name, _method='GET')
+        except TwitterError:
+            print "Username %s not found" %(name)
+            queue.put(("Username not found", channel))
+            return
 
-    #Unfollow user
-    #def unfollow(self, queue, nick, msg, channel):
-    #    print "no function yet"
+        if "following" in user[0]['connections']:
+            print "Already following %s" %(user[0]['name'])
+            queue.put(("Already following %s" %(user[0]['name']), channel))
+            return
+
+        try:
+            self.twitter.friendships.create(screen_name=name)
+        except TwitterError:
+            print "Twitter error, following failed"
+            queue.put(("Following failed", channel))
+        print "executed follow"
+        queue.put(("Now following %s" %(user[0]['name']), channel))
+
+    def unfollow(self, queue, nick, msg, channel):
+        name = msg.split()[1].strip()
+        if re.search(r'[^\w]', name) or not (1 <= len(name) <= 15):
+            print "invalid username"
+            queue.put(("invalid username", channel))
+            return
+
+        try:
+            user = self.twitter.friendships.lookup(screen_name=name, _method='GET')
+        except TwitterError:
+            print "Twitter error"
+            queue.put(("Couldn't unfollow %s" %(name), channel))
+            return
+
+        try:
+            if "following" in user[0]['connections']:
+                self.twitter.friendships.destroy(screen_name=name)
+                print "No longer following %s" %(user[0]['name'])
+                queue.put(("No longer following %s" %(user[0]['name']), channel))
+                print "executed unfollow"
+                return
+        except IndexError:
+            print "Username not found"
+            queue.put(("Username not found", channel))
+            return
+        except TwitterError:
+            print "TwitterError"
+            queue.put(("Couldn't unfollow %" %(name), channel))
+            return
+
+        print "executed unfollow"
+        queue.put(("Wasn't following %s" %(user[0]['name']), channel))
 
     def tweet(self, queue, nick, msg, channel):
         tweet = msg[7:]
