@@ -1,8 +1,6 @@
 from irc.client import SimpleIRCClient
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
-
 
 class SimoBot(SimpleIRCClient):
 
