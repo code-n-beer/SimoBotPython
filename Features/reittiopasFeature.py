@@ -2,6 +2,7 @@ from urllib import urlencode
 import urllib2
 import json
 import ConfigParser, os
+import re
 
 class reittiopasFeature:
 
@@ -58,6 +59,14 @@ class reittiopasFeature:
     def formatTime(self, time):
         return time[-4:-2]+":"+time[-2:] #YYYYMMDDHHMM
 
+    def formatLength(self, length):
+        if length < 1000:
+            return str(int(length)) + "m"
+        return "%.1fkm" % (length/1000)
+
+    def formatDuration(self, duration):
+        return "%dmin" % (duration/60)
+
     def formatCode(self, code):
         if code[:3] == "300":    #local train
             return code[4]
@@ -88,29 +97,56 @@ class reittiopasFeature:
             }
         return types[int(type)] + " " + self.formatCode(code).strip()
 
+    def routeBuilder(self, route):
+        legs = len(route[0][0]['legs'])
+
+        #First leg for depTime
+        routeStr = self.formatTime(route[0][0]['legs'][0]['locs'][0]['depTime']) + " > "
+        #Transport legs
+        for i in range(1, legs-1):
+            if i%2 != 0:
+                leg = (self.formatTransportTypeAndCode(
+                        route[0][0]['legs'][i]['code'],
+                        route[0][0]['legs'][i]['type'])
+                        + " from " + route[0][0]['legs'][i]['locs'][0]['name']
+                        + " @" + self.formatTime(route[0][0]['legs'][i]['locs'][0]['depTime']) + " > ")
+                routeStr += leg
+        #Last leg for arrival time
+        arrival = len(route[0][0]['legs'][legs-1]['locs'])
+        routeStr += self.formatTime(route[0][0]['legs'][legs-1]['locs'][arrival-1]['arrTime'])
+        #Length and duration
+        length = self.formatLength(route[0][0]['length'])
+        duration = self.formatDuration(route[0][0]['duration'])
+        routeStr += " | " + length + " " + duration
+        return routeStr
+
     def execute(self, queue, nick, msg, channel):
-        locations = msg.split()
-        if len(locations) != 3:
-            print "Give start and destination"
-            queue.put(("Give start and destination locations", channel))
+        userInput = re.split('[,>-]', msg[12:])
+        if len(userInput) < 2:
+            print "Need at least start and destination"
+            queue.put(("Give start and destination location separated with , - or >", channel))
             return
 
-        start = self.callGeocode(locations[1])[0]['coords']
-        destination = self.callGeocode(locations[2])[0]['coords']
+        start = self.callGeocode(userInput[0])[0]['coords']
+        destination = self.callGeocode(userInput[1])[0]['coords']
 
-        d = {'from':start, 'to':destination}
+        # Manual input for departure time
+        try:
+            time = userInput[2].strip()
+            if len(time) == 5:
+                time = "".join(re.split('[.:]', time))
+            if len(time) == 4:
+                if (0 <= int(time[:2]) < 24) and (0 <= int(time[2:]) < 60):
+                    d = {'from':start, 'to':destination, 'time':str(time)}
+            else:
+                d = {'from':start, 'to':destination}
+        except IndexError:
+            d = {'from':start, 'to':destination}
+
         route = self.callRoute(**d)
 
-        depTime = self.formatTime(route[0][0]['legs'][0]['locs'][0]['depTime'])
         try:
-            firstTransport = self.formatTransportTypeAndCode(
-                    route[0][0]['legs'][1]['code'],
-                    route[0][0]['legs'][1]['type'])
-            firstTransportDepTime = self.formatTime(route[0][0]['legs'][1]['locs'][0]['depTime'])
-            firstStopName = route[0][0]['legs'][1]['locs'][0]['name']
-            result = "Leave at " + depTime + " to " + firstStopName + ", " + firstTransport + " arrives at " + firstTransportDepTime
+            result = self.routeBuilder(route)
         except IndexError:
             result = "Just walk"
-        #Only shows first leg for now, if first leg is not found reittiopas suggests walking
-        #Need to implement display for all legs
         queue.put((result, channel))
