@@ -59,6 +59,17 @@ class TestCommandParser(unittest.TestCase):
         self.assertEqual(parser.parse("c1 c2 xxx"), (str, "xxx"))
         self.assertEqual(parser.parse("c1"), None)
 
+    def test_adding_level_1_map(self):
+        parser = CommandParser()
+        parser.add({
+            "command" : int,
+            "another" : float
+        })
+
+        self.assertEqual(parser.parse("command").handler, int)
+        self.assertEqual(parser.parse("command xxx"), (int, "xxx"))
+
+        self.assertEqual(parser.parse("another").handler, float)
 
 
 
