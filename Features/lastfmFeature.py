@@ -1,4 +1,4 @@
-import pylast, ConfigParser, os, json
+import pylast, ConfigParser, os, json, redis
 
 class lastfmFeature:
 
@@ -7,24 +7,38 @@ class lastfmFeature:
         network = pylast.LastFMNetwork(
                 api_key=config.get('lastfm','API_KEY'),
                 api_secret=config.get('lastfm','API_SECRET'))
+        r = redis.StrictRedis(host='localhost', port=6381, db=1)
 
         def __init__(self):
             self.cmdpairs = {
                     "!varjonp" : self.execute,
-        #            "!varjosetlastfm" : self.setlastfm
+                    "!varjosetlastfm" : self.setlastfm
                             }
 
-        #def setlastfm(self, queue, nick, message, channel):
-        #    print "Not yet implemented"
+        def setlastfm(self, queue, nick, message, channel):
+            try:
+                lastfmname = message.split()[1]
+            except IndexError:
+                queue.put(("Give a last.fm username", channel))
+                return
+            self.r.set(nick, lastfmname)
+            output = "%s's last.fm username now set to %s" %(nick, lastfmname)
+            print output
+            queue.put((output, channel))
 
         def execute(self, queue, nick, message, channel):
             msg = message.split()
 
             if len(msg) < 2:
-                queue.put(("Not yet implemented", channel))
-                return
-
-            user = self.network.get_user(msg[1])
+                lastfmname = self.r.get(nick)
+                if lastfmname:
+                    user = self.network.get_user(lastfmname)
+                else:
+                    print "No username set for %s" %nick
+                    queue.put(("No last.fm username set, try !setlastfm <username>", channel))
+                    return
+            else:
+                user = self.network.get_user(msg[1])
 
             try:
                 trackData = user.get_now_playing()
