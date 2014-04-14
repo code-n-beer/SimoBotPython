@@ -6,25 +6,63 @@ class twitterFeature:
 
     config = ConfigParser.ConfigParser()
     config.read("Resources/settings.cfg")
-    oToken = config.get('twitter','OAUTH_TOKEN')
-    oSecret = config.get('twitter','OAUTH_SECRET')
-    cKey = config.get('twitter','CONSUMER_KEY')
-    cSecret = config.get('twitter','CONSUMER_SECRET')
+    auth = OAuth(
+        config.get('twitter','OAUTH_TOKEN'),
+        config.get('twitter','OAUTH_SECRET'),
+        config.get('twitter','CONSUMER_KEY'),
+        config.get('twitter','CONSUMER_SECRET'))
 
     def __init__(self):
         self.cmdpairs = {
-    #            "!twitter" : self.execute,
+                "!twitter" : self.execute,
                 "!tweet" : self.tweet,
                 "!follow" : self.follow,
                 "!unfollow" :self.unfollow
                 }
-        self.twitter = Twitter(
-            auth=OAuth(
-                self.oToken, self.oSecret, self.cKey, self.cSecret))
+        self.twitter = Twitter(auth=self.auth)
 
-    #Read tweets from users followed
-    #def execute(self, queue, nick, msg, channel):
-    #    print "no function yet"
+    #Read tweets from userstream
+    def execute(self, queue, nick, msg, channel):
+        stream = TwitterStream(auth=self.auth, domain='userstream.twitter.com')
+        print "Opened Twitter userstream"
+        queue.put(("Opened Twitter userstream", channel))
+        try:
+            for msg in stream.user():
+                try:
+                    if msg['user']['id'] != 1220480214: # Dont read own tweets
+                        user = msg['user']['name']
+                        text = msg['text']
+                        queue.put(("Tweet from %s: %s" %(user, text), channel))
+                except KeyError:
+                    # Not a tweet (favourite/retweet etc.)
+                    pass
+                #Disconnect messages
+                try:
+                    #reason = msg['disconnect']['reason']
+                    reason = self.disconnectCode(msg['disconnect']['code'])
+                    queue.put(("Twitter stream disconnected: %s" %(reason), channel))
+                except KeyError:
+                    pass
+        except TwitterError, e:
+            print "Twitter stream disconnected: %s" %e
+            shorte = str(e).split("details: ",1)[1]
+            queue.put(("Twitter stream disconnected: %s" %shorte, channel))
+
+    def disconnectCode(self, code):
+        codes = {
+                1: u"Shutdown",
+                2: u"Duplicate stream",
+                3: u"Control request",
+                4: u"Stall",
+                5: u"Normal",
+                6: u"Token revoked",
+                7: u"Admin logout",
+                9: u"Max message limit",
+                10: u"Stream exception",
+                11: u"Broker stall",
+                12: u"Shed load",
+                }
+        return codes[int(code)]
 
     def follow(self, queue, nick, msg, channel):
         name = msg.split()[1].strip()
@@ -90,11 +128,11 @@ class twitterFeature:
         tweet = msg[7:]
         if len(tweet) > 140:
             print "tweet limit 140 characters"
-            queue.put(("tweet limit is 140 characters", channel))
+            queue.put(("Tweet limit is 140 characters", channel))
             return
         elif len(msg.split()) < 2:
             print "nothing to tweet"
-            queue.put(("nothing to tweet", channel))
+            queue.put(("Nothing to tweet", channel))
             return
 
         try:
@@ -105,4 +143,4 @@ class twitterFeature:
             return
 
         print "executed tweet"
-        queue.put(("tweeted succesfully", channel))
+        queue.put(("Tweeted succesfully", channel))
