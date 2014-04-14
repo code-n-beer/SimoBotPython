@@ -16,6 +16,7 @@ Last.fm
 -------
 
 `!np <username>` Returns currently playing or last played song from Last.fm.
+
 `!setlastfm <username>` Sets your last.fm username for your irc-nick so `!np` works without parameters.
 
 Pirkkaniksi
@@ -31,7 +32,7 @@ Pizza-randomer
 Reittiopas
 ----------
 
-`!reittiopas <start> - <destination>, <time>` Returns HSL public transport route from start to destination, length and duration. If no time is specified uses current time.
+`!reittiopas <start> - <destination>, <time>` Returns HSL public transport route from start to destination, length and duration. If no time is specified uses current time. Uses `-`, `,` or `>` as separators.
 
 Reverse
 -------
