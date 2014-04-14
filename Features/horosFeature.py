@@ -43,9 +43,6 @@ class horosFeature:
         sign = sign[1:]
         tagCount = datetime.datetime.today().weekday() + 1
 
-        if tagCount > 14 or tagCount < 2:
-            return "invalid date"
-
         htmlArray = html.split(sign + "</h3><p>", tagCount + 1)
         result = htmlArray[tagCount]
 
