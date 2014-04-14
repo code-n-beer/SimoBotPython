@@ -31,7 +31,15 @@ class CommandParser:
 
     def _addmap(self, mappable):
         for (key, value) in mappable.iteritems():
-            self._add(key, value)
+            if isinstance(value, collections.Mapping):
+                self.commands[key] = CommandParser()
+                self.commands[key]._addmap(value)
+            else:
+                if key is None:
+                    self.commands[key] = value
+                else:
+                    self.commands[key] = CommandParser()
+                    self.commands[key].commands[None] = value
 
     def parse(self, msg):
         """Take message and return applicable command.
