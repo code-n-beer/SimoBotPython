@@ -132,7 +132,7 @@ while 1:
 
     print nick + ": " + msg;
 
-    if "!reload" in msg:
+    if msg.startswith("!reload"):
         #sendMsg(irc,channel,"reload")
         #reloadModules(modules)
         reload(Features)
