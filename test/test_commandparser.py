@@ -71,6 +71,38 @@ class TestCommandParser(unittest.TestCase):
 
         self.assertEqual(parser.parse("another").handler, float)
 
+    def test_adding_level_2_map(self):
+        parser = CommandParser()
+        parser.add({
+            "command" : {
+                None : int,
+                "add" : float
+            }
+        })
+
+        self.assertEqual(parser.parse("command xxx"), (int, "xxx"))
+        self.assertEqual(parser.parse("command add xxx"), (float, "xxx"))
+
+
+    def test_adding_level_3_map(self):
+        parser = CommandParser()
+        parser.add({
+            "command" : {
+                None : int,
+                "add" : float,
+                "sub" : {
+                    "add" : str,
+                    "remove" : int
+                }
+            },
+            "command2" : str
+        })
+
+        self.assertEqual(parser.parse("command xxx"), (int, "xxx"))
+        self.assertEqual(parser.parse("command2 xxx"), (str, "xxx"))
+        self.assertEqual(parser.parse("command add xxx"), (float, "xxx"))
+        self.assertEqual(parser.parse("command sub add xxx"), (str, "xxx"))
+        self.assertEqual(parser.parse("command sub remove xxx"), (int, "xxx"))
 
 
 if __name__ == '__main__':
