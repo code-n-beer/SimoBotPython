@@ -4,6 +4,7 @@ import os
 import pkgutil
 from irc.client import SimpleIRCClient
 import logging
+from irc.dict import IRCDict
 from Features.feature import Feature
 from helpers.commandparser import CommandParser
 
@@ -11,7 +12,8 @@ from helpers.commandparser import CommandParser
 class SimoBot(SimpleIRCClient):
 
     features = CommandParser()
-    channels = []
+    channels = IRCDict()
+    names = []
 
     def __init__(self, server, port, nick, channels=None):
         super(SimoBot, self).__init__()
@@ -20,7 +22,7 @@ class SimoBot(SimpleIRCClient):
         self.port = port
         self.nick = nick
         if channels:
-            self.channels = channels
+            self.channels = IRCDict().fromkeys(channels, set())
 
     def send_to_chan(self, chan, msg):
         self.connection.privmsg(chan, msg)
@@ -68,10 +70,16 @@ class SimoBot(SimpleIRCClient):
         parsed = self.features.parse(msg)
         if parsed and parsed.handler[1].is_alive():
             pipe = parsed.handler[0]
-            pipe.send((parsed.arguments, e.source.nick))
+            pipe.send((parsed.arguments, e.source.nick, self.channels[e.target]))
             if pipe.poll(5):
                 response = pipe.recv()
                 self.send_to_chan(e.target, response)
+
+    def on_namreply(self, c, e):
+        names = e.arguments[2].split()
+        channel = e.arguments[1]
+        for name in names:
+            self.channels[channel].add(name)
 
     def start(self):
         self.connect(server=self.server,
@@ -79,7 +87,6 @@ class SimoBot(SimpleIRCClient):
                      nickname=self.nick)
         self.load_all_features()
         super(SimoBot, self).start()
-
 
 def run_feature(module, classname, connection):
     feature_module = __import__(module, fromlist=[classname])
@@ -89,8 +96,8 @@ def run_feature(module, classname, connection):
 
     while True:
         try:
-            msg, nick = connection.recv()
-            connection.send(feature.handle(msg, nick))
+            msg, nick, channel = connection.recv()
+            connection.send(feature.handle(msg, nick, channel))
         except (EOFError, IOError):
             logging.warning('Subprocess for ' + classname + ' terminating!')
             break
