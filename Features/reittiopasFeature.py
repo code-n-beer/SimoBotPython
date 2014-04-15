@@ -1,3 +1,4 @@
+# coding=utf-8
 from urllib import urlencode
 import urllib2
 import json
@@ -47,14 +48,18 @@ class reittiopasFeature:
 
     def callForJSON(self, **params):
         body = self.call(format="json", **params)
-        js = json.loads(body)
+        try:
+            js = json.loads(body)
+        except ValueError, e:
+            print e
+            return
         return js
 
     def callGeocode(self, location):
         return self.callForJSON(request="geocode", key=location)
 
     def callRoute(self, **params):
-        return self.callForJSON(request="route", **params)
+        return self.callForJSON(request="route", show=1, **params)
 
     def formatTime(self, time):
         return time[-4:-2]+":"+time[-2:] #YYYYMMDDHHMM
@@ -71,9 +76,15 @@ class reittiopasFeature:
         if code[:3] == "300":    #local train
             return code[4]
         elif code[:4] == "1300": #metro V for Vuosaari, M for Mellunmaki
-            return code[4]
+            if code [-1:] == "2":
+                return u"Ruoholahti"
+            elif code[4] == "M":
+                return u"Mellunmäki"
+            elif code[4] == "V":
+                return u"Vuosaari"
+            return ""
         elif code[:4] == "1019": #Suomenlinna ferry
-            return "Suomenlinna"
+            return u"Suomenlinna"
         return code[1:-2].lstrip("0") #Regular line number
 
     def formatTransportTypeAndCode(self, code, type):
@@ -111,9 +122,15 @@ class reittiopasFeature:
                         + " from " + route[0][0]['legs'][i]['locs'][0]['name']
                         + " @" + self.formatTime(route[0][0]['legs'][i]['locs'][0]['depTime']) + " > ")
                 routeStr += leg
-        #Last leg for arrival time
+
+        #Last leg for arrival time and last stop
+        lastStop = route[0][0]['legs'][legs-1]['locs'][0]['name']
+        lastStopArrTime = route[0][0]['legs'][legs-1]['locs'][0]['arrTime']
+        routeStr += lastStop + " @"+ self.formatTime(lastStopArrTime)
         arrival = len(route[0][0]['legs'][legs-1]['locs'])
-        routeStr += self.formatTime(route[0][0]['legs'][legs-1]['locs'][arrival-1]['arrTime'])
+        if arrival > 0:
+            routeStr += " > Destination @" + self.formatTime(route[0][0]['legs'][legs-1]['locs'][arrival-1]['arrTime'])
+
         #Length and duration
         length = self.formatLength(route[0][0]['length'])
         duration = self.formatDuration(route[0][0]['duration'])
@@ -127,8 +144,16 @@ class reittiopasFeature:
             queue.put(("Give start and destination location separated with , - or >", channel))
             return
 
-        start = self.callGeocode(userInput[0])[0]['coords']
-        destination = self.callGeocode(userInput[1])[0]['coords']
+        try:
+            start = self.callGeocode(userInput[0])[0]['coords']
+        except TypeError:
+            queue.put(("No location found for %s" %(userInput[0].strip()), channel))
+            return
+        try:
+            destination = self.callGeocode(userInput[1])[0]['coords']
+        except TypeError:
+            queue.put(("No location found for %s" %(userInput[1].strip()), channel))
+            return
 
         # Manual input for departure time
         try:
@@ -149,4 +174,5 @@ class reittiopasFeature:
             result = self.routeBuilder(route)
         except IndexError:
             result = "Just walk"
+        print "executed reittiopas"
         queue.put((result, channel))
