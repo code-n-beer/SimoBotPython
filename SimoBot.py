@@ -1,6 +1,7 @@
+import os
+import pkgutil
 from irc.client import SimpleIRCClient
 import logging
-
 
 class SimoBot(SimpleIRCClient):
 
@@ -16,6 +17,19 @@ class SimoBot(SimpleIRCClient):
 
     def send_to_chan(self, chan, msg):
         self.connection.privmsg(chan, msg)
+
+    def load_all_features(self):
+        features = __import__('Features')
+
+        features_iter = pkgutil.iter_modules(features.__path__)
+        for (loader, name, ispkg) in features_iter:
+            try:
+                loader.find_module(name).load_module(name)
+            except SyntaxError as e:
+                logging.error("Syntax error in " + os.path.basename(e.filename))
+            except ImportError as e:
+                errors = ", ".join(e.args)
+                logging.error("Import error in " + name + ": " + errors)
 
     def on_nicknameinuse(self, c, e):
         self.nick = c.nickname + "_"
@@ -34,4 +48,5 @@ class SimoBot(SimpleIRCClient):
         self.connect(server=self.server,
                      port=self.port,
                      nickname=self.nick)
+        self.load_all_features()
         super(SimoBot, self).start()
