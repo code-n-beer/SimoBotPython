@@ -14,6 +14,17 @@ class TestCommandParser(unittest.TestCase):
         parser = CommandParser()
         parser.add("command", int)
 
+    def test_adding_default_command(self):
+        parser = CommandParser()
+        parser.default(int)
+
+        self.assertEqual(parser.parse("").handler, int)
+        self.assertEqual(parser.parse("xxx"), (int, "xxx"))
+
+        parser.add("!command", dict)
+        self.assertEqual(parser.parse("!command xxx"), (dict, "xxx"))
+        self.assertEqual(parser.parse("!notacommand").handler, int)
+
     def test_level_1_match(self):
         parser = CommandParser()
         parser.add("!command", int)

@@ -41,6 +41,10 @@ class CommandParser:
                     self.commands[key] = CommandParser()
                     self.commands[key].commands[None] = value
 
+    def default(self, action):
+        """Add default action"""
+        self.commands[None] = action
+
     def parse(self, msg):
         """Take message and return applicable command.
 
