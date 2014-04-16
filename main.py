@@ -25,12 +25,12 @@ configparser.read("Resources/settings.cfg")
 
 config = dict(configparser.items("connection"))
 
-server = "localhost"       #settings
-channel = "#simobot"
-botnick = "SimoBot"
-username = "simobot"
-passwd = "herpderp"
-port = int(7501)
+server = config['server']       #settings
+channel = config['channel']
+botnick = config['botnick']
+username = config['username']
+passwd = config['password']
+port = int(config['port'])
 
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #defines the socket
 print "connecting to:"+server
@@ -98,7 +98,7 @@ while 1:
         #print "not ready"
         continue
 
-#    print "ready"
+    print "ready"
 
     text=irc.recv(2048)  #receive the text
 
