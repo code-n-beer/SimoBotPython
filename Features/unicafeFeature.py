@@ -28,9 +28,6 @@ class unicafeFeature:
       chemLunch = self.parseRSSString(menuChem, "Chemicum", today)
       result = exaLunch + " /::/ " + chemLunch
 
-      # vittuun ne päivän hedelmät
-      result = re.sub(r' \( .* \)$','',result)
-
       print result
       queue.put((result, channel))
 
@@ -44,25 +41,26 @@ class unicafeFeature:
         todaysMenu = ET.XML(tmpstring)
         todaysPrices = todaysMenu.findall(".p/span[@class='priceinfo']")
         todaysMenu = todaysMenu.findall("./p/span[@class='meal']")
+        
+        # tän vois tehdä nätimmin
+        todaysMenuStrings = []
+        i = 0
 
-        result = self.generateMenuString(todaysMenu, todaysPrices)
+        for menu in todaysMenu:
+          # vittuun ne päivän hedelmät
+          menuString = re.sub(r' \( .* \)$','',menu.text)
+
+          if i < len(todaysPrices) and "Maukkaasti" in todaysPrices[i].text:
+            menuString += " [M]"
+
+          todaysMenuStrings.append(menuString)
+          i = i + 1
+            
+        result = " // ".join(todaysMenuStrings)
 
       result = restaurant + ": "+result
       return result
 
-    
-    def generateMenuString(self, todaysMenu, todaysPrices):
-      # tän vois tehdä nätimmin
-      todaysMenuStrings = []
-      i = 0
-      for menu in todaysMenu:
-        menuString = menu.text.lower().capitalize()
-        if i < len(todaysPrices) and "Maukkaasti" in todaysPrices[i].text:
-          menuString += " [M]"
-        todaysMenuStrings.append(menuString)
-        i = i + 1
-          
-      return " // ".join(todaysMenuStrings)
 
     def html2Txt(self, html):
         html = html.encode('utf-8')
