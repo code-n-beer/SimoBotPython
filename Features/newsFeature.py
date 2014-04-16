@@ -12,6 +12,7 @@ class newsFeature:
                 }
         self.seenNews = []
         self.newsStrings = []
+        self.maxMessageLength = 478
 
 
     def execute(self, queue, nick, msg, channel):
@@ -48,8 +49,17 @@ class newsFeature:
       for news in items:
         title = news.find("./title").text
         description = news.find("./description").text
-        description = description.split(EOL)[0]
-        newsStrings.append((title + " // " + description)[:460])
+        
+        # concat title and description, remove tail from description
+        news = (title + " // " + description.split(EOL)[0]).encode('utf-8')
+        news = self.limitNewsToMaxMessageLength(news)
+        news = self.magicLocaleFix(news)
+        
+        newsStrings.append(news)
+
+    def limitNewsToMaxMessageLength(self, news):
+      lastSentenceIndex = news.rfind(".", 0, self.maxMessageLength)
+      return news[:lastSentenceIndex + 1]
 
 
     def fetchUrlToString(self, URL):
@@ -71,3 +81,8 @@ class newsFeature:
         html = html.replace("&Auml;", "Ä")
         html = html.replace("&Ouml;", "Ö")
         return html
+    
+    def magicLocaleFix(self, string):
+      string = string.replace("Ã¶", "ö")
+      string = string.replace("Ã¤", "ä")
+      return string
