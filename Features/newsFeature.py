@@ -13,6 +13,10 @@ class newsFeature:
         self.seenNews = []
         self.newsStrings = []
         self.maxMessageLength = 478
+        self.newsSites = {"http://www.magneettimedia.com/feed/":"[",
+            "http://feeds.feedburner.com/stara/ilman-big-brotheria?format=xml":"[",
+            "http://tuima.fi/?feed=rss2":"&#8230;",
+            "http://www.iltalehti.fi/rss/kotimaa.xml":"["}
 
 
     def execute(self, queue, nick, msg, channel):
@@ -29,14 +33,11 @@ class newsFeature:
       
 
     def fetchNews(self, queue, channel):
-      magnfeed = self.fetchUrlToString("http://www.magneettimedia.com/feed/") 
-      starafeed = self.fetchUrlToString("http://feeds.feedburner.com/stara/ilman-big-brotheria?format=xml")
-      tuimafeed = self.fetchUrlToString("http://tuima.fi/?feed=rss2")
-
       newsStrings = []
-      self.parseFeedString(magnfeed, newsStrings)
-      self.parseFeedString(starafeed, newsStrings)
-      self.parseFeedString(tuimafeed, newsStrings, "&#8230;")
+      for url in self.newsSites.keys():
+        feed = self.fetchUrlToString(url)
+        self.parseFeedString(feed, newsStrings, self.newsSites[url])
+
       shuffle(newsStrings)
 
       return newsStrings
@@ -58,8 +59,8 @@ class newsFeature:
         newsStrings.append(news)
 
     def limitNewsToMaxMessageLength(self, news):
-      lastSentenceIndex = news.rfind(".", 0, self.maxMessageLength)
-      return news[:lastSentenceIndex + 1]
+      lastSentenceIndex = news.rfind(".", 0, self.maxMessageLength - 1)
+      return news[:lastSentenceIndex]
 
 
     def fetchUrlToString(self, URL):
