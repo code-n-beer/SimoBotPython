@@ -16,7 +16,8 @@ class newsFeature:
         self.newsSites = {"http://www.magneettimedia.com/feed/":"[",
             "http://feeds.feedburner.com/stara/ilman-big-brotheria?format=xml":"[",
             "http://tuima.fi/?feed=rss2":"&#8230;",
-            "http://www.iltalehti.fi/rss/kotimaa.xml":"["}
+            "http://www.iltalehti.fi/rss/kotimaa.xml":"[",
+            "http://feeds.feedburner.com/findancecom/uutiset/maailmalta?format=xml":"["}
 
 
     def execute(self, queue, nick, msg, channel):
@@ -51,16 +52,16 @@ class newsFeature:
         title = news.find("./title").text
         description = news.find("./description").text
         
-        # concat title and description, remove tail from description
-        news = (title + " // " + description.split(EOL)[0]).encode('utf-8')
+        # concat title and description, remove tail from description, strip whitespace
+        news = (title.strip() + " // " + description.split(EOL)[0].strip()).encode('utf-8')
         news = self.limitNewsToMaxMessageLength(news)
         news = self.magicLocaleFix(news)
         
         newsStrings.append(news)
 
     def limitNewsToMaxMessageLength(self, news):
-      lastSentenceIndex = news.rfind(".", 0, self.maxMessageLength - 1)
-      return news[:lastSentenceIndex]
+      lastSentenceIndex = news.rfind(".", 0, self.maxMessageLength)
+      return news[:lastSentenceIndex + 1]
 
 
     def fetchUrlToString(self, URL):
