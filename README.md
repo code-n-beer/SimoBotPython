@@ -10,7 +10,7 @@ Features
 horos
 -----
 
-`!horos <sign>` Returns your weekly horoscpe
+`!horos <sign>` Returns your daily horoscpe
 
 Last.fm
 -------
@@ -53,3 +53,8 @@ Weather
 -------
 
 `!weather <location>` Returns current weather for location.
+
+Unicafe
+-------
+
+`!varjouc` Returns Chemicum and Exactum Unicafe menus for today.
