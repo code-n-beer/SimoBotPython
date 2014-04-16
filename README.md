@@ -58,3 +58,8 @@ Unicafe
 -------
 
 `!varjouc` Returns Chemicum and Exactum Unicafe menus for today.
+
+News
+----
+
+`!news` Returns todays most relevant news, delivered to you randomly.
