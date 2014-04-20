@@ -2,8 +2,8 @@
 import urllib2
 from StringIO import StringIO
 import gzip
-import xml.etree.ElementTree as ET
 from HTMLParser import HTMLParser
+import re
 
 class drinkifyFeature:
 
@@ -30,8 +30,11 @@ class drinkifyFeature:
       parser = drinkifyParser()
       parser.feed(drinkifyResult)
 
+      print parser.data
       result = "\"" + parser.data.pop(0) + "\": "
-      result = result + ", ".join(parser.data)
+      resultSuffix = parser.data.pop().strip()
+      resultSuffix = re.sub(r'([ \n]+)', ' ', resultSuffix)
+      result = result + ", ".join(parser.data) + ". " + resultSuffix
 
       print result
       queue.put((result, channel))
@@ -58,17 +61,20 @@ class drinkifyParser(HTMLParser):
       if tag == 'ul' and ('class', 'recipe') in attrs:
         self.ingredientsFound = 1
         return
-      if self.ingredientsFound and tag == 'li':
-        self.recordData = 1
-        return
+
+      if self.ingredientsFound:
+        if tag == 'li':
+          self.recordData = 1
+          return
+        if tag == 'p' and ('class', 'instructions') in attrs:
+          self.recordData = 1
+          return
 
   def handle_endtag(self, tag):
     self.recordData = 0
     if tag == 'div':
       self.recipeFound = 0
       return
-    if tag == 'ul':
-      self.ingredientsFound = 0
 
   def handle_data(self, data):
     if self.recordData:
