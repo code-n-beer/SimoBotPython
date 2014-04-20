@@ -22,7 +22,7 @@ class drinkifyFeature:
       if not searchString:
         return
 
-    searchString = searchString.replace(" ", "%20").encode('utf-8')
+    searchString = urllib2.quote(searchString).encode('utf-8')
     print "Searching " + searchString
 
     drinkifyResult = ""
@@ -39,8 +39,9 @@ class drinkifyFeature:
     
     parser = drinkifyParser()
     parser.feed(drinkifyResult)
+    print parser.data
 
-    result = self.combineResultStringFromDataArray(parser.data)
+    result = self.combineResultStringFromParserData(parser.drinkName, parser.data)
     
     print result
 
@@ -60,12 +61,12 @@ class drinkifyFeature:
     lastfmArtist = re.findall(r'^[^:]*: (.+) -.*', lastfmString)[0]
     return lastfmArtist
     
-  def combineResultStringFromDataArray(self, data):
-    drinkName = data.pop(0)
+  def combineResultStringFromParserData(self, drinkName, data):
+    drinkNameString = "".join(drinkName)
     instructions = data.pop().strip()
     instructions = re.sub(r'([ \n]+)', ' ', instructions)
     ingredients = ", ".join(data)
-    return "\"%s\": %s. %s" %(drinkName, ingredients, instructions)
+    return "\"%s\": %s. %s" %(drinkNameString, ingredients, instructions)
 
 
 class drinkifyParser(HTMLParser):
@@ -73,9 +74,11 @@ class drinkifyParser(HTMLParser):
   def __init__(self):
     HTMLParser.__init__(self)
     self.recordData = 0
+    self.recordName = 0
     self.recipeFound = 0
     self.ingredientsFound = 0
     self.data = []
+    self.drinkName = []  # must be treated separately cos of poor HTML
 
   def handle_starttag(self, tag, attrs):
     if tag == 'div' and ('id', 'recipeContent') in attrs:
@@ -84,7 +87,7 @@ class drinkifyParser(HTMLParser):
     
     if self.recipeFound:
       if tag == 'h2':
-        self.recordData = 1
+        self.recordName = 1
         return
       if tag == 'ul' and ('class', 'recipe') in attrs:
         self.ingredientsFound = 1
@@ -100,6 +103,7 @@ class drinkifyParser(HTMLParser):
 
   def handle_endtag(self, tag):
     self.recordData = 0
+    self.recordName = 0
     if tag == 'div':
       self.recipeFound = 0
       return
@@ -107,3 +111,6 @@ class drinkifyParser(HTMLParser):
   def handle_data(self, data):
     if self.recordData:
       self.data.append(data)
+      return
+    if self.recordName:
+      self.drinkName.append(data)
