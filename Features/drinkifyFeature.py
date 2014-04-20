@@ -41,7 +41,8 @@ class drinkifyFeature:
     parser.feed(drinkifyResult)
     print parser.data
 
-    result = self.combineResultStringFromParserData(parser.drinkName, parser.data)
+    drinkInfo = self.convertOzToCl(parser.data)
+    result = self.combineResultStringFromParserData(parser.drinkName, drinkInfo)
     
     print result
 
@@ -58,19 +59,29 @@ class drinkifyFeature:
       queue.put((lastfmString, channel))
       return ""
 
-    lastfmArtist = re.findall(r'^[^:]*: (.+) -.*', lastfmString)[0]
+    lastfmArtist = re.findall(r'^[^:]*: ([^-]+) -.*', lastfmString)[0]
     return lastfmArtist
+
+  def convertOzToCl(self, ingredientArray):
+    result = []
+    for ingredient in ingredientArray:
+      quantity = re.findall(r'^([0-9]+) oz\.', ingredient)
+      if not quantity:
+        result.append(ingredient)
+        continue
+      quantityCl = str(int(int(quantity[0])*2.95735296))
+      result.append(re.sub(r'^[0-9]+ oz\.', quantityCl + " cl", ingredient))
+    return result
     
-  def combineResultStringFromParserData(self, drinkName, data):
+  def combineResultStringFromParserData(self, drinkName, drinkInfo):
     drinkNameString = "".join(drinkName)
-    instructions = data.pop().strip()
+    instructions = drinkInfo.pop().strip()
     instructions = re.sub(r'([ \n]+)', ' ', instructions)
-    ingredients = ", ".join(data)
+    ingredients = ", ".join(drinkInfo)
     return "\"%s\": %s. %s" %(drinkNameString, ingredients, instructions)
 
 
 class drinkifyParser(HTMLParser):
-
   def __init__(self):
     HTMLParser.__init__(self)
     self.recordData = 0
