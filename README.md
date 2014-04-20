@@ -9,7 +9,7 @@ Features
 
 Drinkify
 -------
-`!drinkify <artist>` Suggests you what to drink while listening to `<artist>`. `!drinkify np` suggests a drink according to your Last.fm now playing track. See [Last.fm](# Last.fm) from below.
+`!drinkify <artist>` Suggests you what to drink while listening to `<artist>`. `!drinkify np` suggests a drink according to your Last.fm now playing track. See [Last.fm](#lastfm) from below.
 
 Horoscope
 -----
