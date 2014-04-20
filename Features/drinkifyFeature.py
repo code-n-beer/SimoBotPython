@@ -3,41 +3,69 @@ import urllib2
 from StringIO import StringIO
 import gzip
 from HTMLParser import HTMLParser
+from Features.lastfmFeature import lastfmFeature
+from multiprocessing import Queue
 import re
 
 class drinkifyFeature:
 
-    def __init__(self):
-        self.cmdpairs = {
-                "!drinkify" : self.execute
-                }
+  def __init__(self):
+      self.cmdpairs = {
+              "!drinkify" : self.execute
+              }
 
-    def execute(self, queue, nick, msg, channel):
-      searchString = msg[10:].replace(" ", "%20").encode('utf-8')
-      print "Searching " + searchString
-      drinkifyResult = ""
-      try:
-        response = urllib2.urlopen("http://drinkify.org/" + searchString)
-        if response.info().get('Content-Encoding') == 'gzip':
-          buf = StringIO(response.read())
-          response = gzip.GzipFile(fileobj=buf)
-        drinkifyResult = response.read()
-      except urllib2.URLError, e:
-          print "fetching drink failed: " + e.reason
-          queue.put(("fetching drink failed: " + e.reason, channel))
-          return
-      
-      parser = drinkifyParser()
-      parser.feed(drinkifyResult)
+  def execute(self, queue, nick, msg, channel):
+    searchString = msg[10:].strip()
 
-      print parser.data
-      result = "\"" + parser.data.pop(0) + "\": "
-      resultSuffix = parser.data.pop().strip()
-      resultSuffix = re.sub(r'([ \n]+)', ' ', resultSuffix)
-      result = result + ", ".join(parser.data) + ". " + resultSuffix
+    if searchString == 'np':
+      searchString = self.fetchNpArtistFromLastfm(nick, queue, channel)
+      if not searchString:
+        return
 
-      print result
-      queue.put((result, channel))
+    searchString = searchString.replace(" ", "%20").encode('utf-8')
+    print "Searching " + searchString
+
+    drinkifyResult = ""
+    try:
+      response = urllib2.urlopen("http://drinkify.org/" + searchString)
+      if response.info().get('Content-Encoding') == 'gzip':
+        buf = StringIO(response.read())
+        response = gzip.GzipFile(fileobj=buf)
+      drinkifyResult = response.read()
+    except urllib2.URLError, e:
+        print "fetching drink failed: " + e.reason
+        queue.put(("fetching drink failed: " + e.reason, channel))
+        return
+    
+    parser = drinkifyParser()
+    parser.feed(drinkifyResult)
+
+    result = self.combineResultStringFromDataArray(parser.data)
+    
+    print result
+
+    queue.put((result, channel))
+
+  def fetchNpArtistFromLastfm(self, nick, queue, channel):
+    # this could be done in parallel, but there's really no point
+    lastfm = lastfmFeature()
+    response = Queue()
+    lastfm.execute(response, nick, '!varjonp', '#simobot')
+    lastfmString = response.get()[0]
+    
+    if lastfmString.find(': ') == -1:      # something's wrong
+      queue.put((lastfmString, channel))
+      return ""
+
+    lastfmArtist = re.findall(r'^[^:]*: (.+) -.*', lastfmString)[0]
+    return lastfmArtist
+    
+  def combineResultStringFromDataArray(self, data):
+    drinkName = data.pop(0)
+    instructions = data.pop().strip()
+    instructions = re.sub(r'([ \n]+)', ' ', instructions)
+    ingredients = ", ".join(data)
+    return "\"%s\": %s. %s" %(drinkName, ingredients, instructions)
 
 
 class drinkifyParser(HTMLParser):
