@@ -7,7 +7,11 @@ IRC bot written in Python. Uses separate, stoppable threads for running feature 
 Features
 ========
 
-horos
+Drinkify
+-------
+`!drinkify <artist>` Suggests you what to drink while listening to `<artist>`
+
+Horoscope
 -----
 
 `!horos <sign>` Returns your daily horoscpe
@@ -18,6 +22,11 @@ Last.fm
 `!np <username>` Returns currently playing or last played song from Last.fm.
 
 `!setlastfm <username>` Sets your last.fm username for your irc-nick so `!np` works without parameters.
+
+News
+----
+
+`!news` Returns todays most relevant news, delivered to you randomly.
 
 Pirkkaniksi
 -----------
@@ -49,17 +58,14 @@ Uguu
 
 `!varjouguu <input>` Uguu
 
-Weather
--------
-
-`!weather <location>` Returns current weather for location.
-
 Unicafe
 -------
 
 `!varjouc` Returns Chemicum and Exactum Unicafe menus for today.
 
-News
-----
 
-`!news` Returns todays most relevant news, delivered to you randomly.
+Weather
+-------
+
+`!weather <location>` Returns current weather for location.
+
