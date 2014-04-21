@@ -16,7 +16,7 @@ class calculatorFeature:
     result = self.calculate(msg[1].replace(" ", ""))
 
     if (not self.isNumber(result)):
-      result = "invalid syntax"
+      result = "invalid syntax or value too big"
 
     if result.endswith(".0"):
       result = result[:-2]
@@ -51,9 +51,14 @@ class calculatorFeature:
 
     # deal with everything else
     formula = self.handleOperations(formula,
-        { "*" : self.multiply, "/" : self.divide})
+        { "^" : pow })
+    formula = self.handleOperations(formula,
+        { "*" : self.multiply,
+          "/" : self.divide,
+          "%" : self.modulo })
     formula = self.handleOperations(formula, 
-        { "+" : self.add, "-" : self.subtract })
+        { "+" : self.add, 
+          "-" : self.subtract })
 
       
     print formula
@@ -75,8 +80,8 @@ class calculatorFeature:
           try:
             res = operationDict[formula[curPos]](float(formula[lastOperator+1:curPos]), 
               float(formula[curPos+1:nextOperator]))
-          except ValueError:
-            return "Syntax error"
+          except (ValueError, OverflowError):
+            return "fail"
           formula = formula[:lastOperator+1] + str(res) + formula[nextOperator:]
           i = lastOperator + 1
         else:
@@ -84,6 +89,9 @@ class calculatorFeature:
       i = i + 1
 
     return formula
+
+  def modulo(self, x, y):
+    return x % y
 
   def multiply(self, x, y):
     return x * y
