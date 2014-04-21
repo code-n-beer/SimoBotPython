@@ -44,6 +44,7 @@ class calculatorFeature:
     formula = self.handleOperation(formula, "*", self.multiply)
     formula = self.handleOperation(formula, "/", self.divide)
     formula = self.handleOperation(formula, "+", self.add)
+    formula = self.handleOperation(formula, "-", self.subtract)
       
     print formula
 
@@ -51,21 +52,30 @@ class calculatorFeature:
 
   def handleOperation(self, formula, operationString, operationFunc):
     lastOperator = -1
-    i = 0
+    i = 1
     while i < len(formula):
-      if not self.isPartOfFloat(formula[i]):
+      if not self.isPartOfFloat(formula[i], formula[i-1]):
         if formula[i] == operationString:
           curPos = i
           i = i + 1
-          while i < len(formula) and self.isPartOfFloat(formula[i]):
+          while i < len(formula) and self.isPartOfFloat(formula[i], formula[i-1]):
             i = i + 1
           nextOperator = i
+          print "lastOperator: %s" %lastOperator
+          print "curPos: %s" %curPos
+          print "nextOperator: %s" %nextOperator
+          print "float error with: %s" %formula[lastOperator+1:curPos]
+          if lastOperator + 1 == curPos: # fixes a bug with subtraction
+            break
+          float1 = float(formula[lastOperator+1:curPos])
+          float2 = float(formula[curPos+1:nextOperator])
           res = operationFunc(float(formula[lastOperator+1:curPos]), float(formula[curPos+1:nextOperator]))
           formula = formula[:lastOperator+1] + str(res) + formula[nextOperator:]
           i = lastOperator
         else:
           lastOperator = i
       i = i + 1
+
     return formula
 
   def multiply(self, x, y):
@@ -79,8 +89,11 @@ class calculatorFeature:
   def add(self, x, y):
     return x + y
   
-  def isPartOfFloat(self, char):
-    return char.isdigit() or char == "." or char == "-"
+  def subtract(self, x, y):
+    return x - y
+  
+  def isPartOfFloat(self, char, prevChar):
+    return char.isdigit() or char == "." or (char == "-" and not prevChar.isdigit())
 
   def isNumber(self, s):
     try:
