@@ -13,7 +13,14 @@ class calculatorFeature:
     if len(msg) < 2:
       queue.put(("nothing to calculate", channel))
 
-    result = self.calculate(msg[1])
+    result = self.calculate(msg[1].replace(" ", ""))
+
+    if (not self.isNumber(result)):
+      result = "invalid syntax"
+
+    if result.endswith(".0"):
+      result = result[:-2]
+
     print result
     queue.put((str(result), channel))
 
@@ -36,42 +43,42 @@ class calculatorFeature:
           stack.pop()
           parenthEnd = i
         i = i + 1
-      formula = formula[:parenthStart] + str(self.calculate(formula[parenthStart+1:parenthEnd])) + formula[parenthEnd+1:]
+      formula = (formula[:parenthStart] 
+          + str(self.calculate(formula[parenthStart+1:parenthEnd])) 
+          + formula[parenthEnd+1:])
       if formula.find("(") != -1: # we're not at the bottom of recursion
         return self.calculate(formula)
 
     # deal with everything else
-    formula = self.handleOperation(formula, "*", self.multiply)
-    formula = self.handleOperation(formula, "/", self.divide)
-    formula = self.handleOperation(formula, "+", self.add)
-    formula = self.handleOperation(formula, "-", self.subtract)
+    formula = self.handleOperations(formula,
+        { "*" : self.multiply, "/" : self.divide})
+    formula = self.handleOperations(formula, 
+        { "+" : self.add, "-" : self.subtract })
+
       
     print formula
 
     return formula
 
-  def handleOperation(self, formula, operationString, operationFunc):
+  def handleOperations(self, formula, operationDict):
     lastOperator = -1
     i = 1
     while i < len(formula):
       if not self.isPartOfFloat(formula[i], formula[i-1]):
-        if formula[i] == operationString:
+        if formula[i] in operationDict.keys():
           curPos = i
           i = i + 1
           while i < len(formula) and self.isPartOfFloat(formula[i], formula[i-1]):
             i = i + 1
           nextOperator = i
-          print "lastOperator: %s" %lastOperator
-          print "curPos: %s" %curPos
-          print "nextOperator: %s" %nextOperator
-          print "float error with: %s" %formula[lastOperator+1:curPos]
-          if lastOperator + 1 == curPos: # fixes a bug with subtraction
-            break
-          float1 = float(formula[lastOperator+1:curPos])
-          float2 = float(formula[curPos+1:nextOperator])
-          res = operationFunc(float(formula[lastOperator+1:curPos]), float(formula[curPos+1:nextOperator]))
+          res = ""
+          try:
+            res = operationDict[formula[curPos]](float(formula[lastOperator+1:curPos]), 
+              float(formula[curPos+1:nextOperator]))
+          except ValueError:
+            return "Syntax error"
           formula = formula[:lastOperator+1] + str(res) + formula[nextOperator:]
-          i = lastOperator
+          i = lastOperator + 1
         else:
           lastOperator = i
       i = i + 1
