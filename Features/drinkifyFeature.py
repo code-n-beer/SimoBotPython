@@ -22,7 +22,7 @@ class drinkifyFeature:
       if not searchString:
         return
 
-    searchString = urllib2.quote(searchString).encode('utf-8')
+    searchString = urllib2.quote(searchString.encode('utf-8'))
     print "Searching " + searchString
 
     drinkifyResult = ""
