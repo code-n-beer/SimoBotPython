@@ -91,6 +91,8 @@ class calculatorFeature:
     return formula
 
   def modulo(self, x, y):
+    if y == 0:
+      return 0
     return x % y
 
   def multiply(self, x, y):
