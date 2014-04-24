@@ -59,7 +59,7 @@ class drinkifyFeature:
       queue.put((lastfmString, channel))
       return ""
 
-    lastfmArtist = re.findall(r'^[^:]*: ([^-]+) -.*', lastfmString)[0]
+    lastfmArtist = re.findall(r"^[^:]*: ([^( -)]+) -.*", lastfmString)[0]
     return lastfmArtist
 
   def convertOzToCl(self, ingredientArray):
