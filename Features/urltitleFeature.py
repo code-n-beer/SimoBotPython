@@ -12,6 +12,8 @@ class urltitleFeature:
               }
 
   def execute(self, queue, nick, msg, channel):
+    if not msg.startswith("http"):
+      msg = "http://" + msg
     response = None
     try:
       response = urllib2.urlopen(msg)
