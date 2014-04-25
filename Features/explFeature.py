@@ -26,8 +26,8 @@ class explFeature:
         queue.put(("Expl database empty!", channel))
         return
     else:
-      topic = msg[1].lower
-      if(self.redis.exists(topic)):
+      topic = msg[1].lower()
+      if(not self.redis.exists(topic)):
         queue.put(("No such expl", channel))
         return
       if len(msg) > 2:
@@ -36,12 +36,12 @@ class explFeature:
           queue.put(("Invalid expl index", channel))
           return
     explrange = self.redis.lrange(topic, 0, self.redis.llen(topic))
-    retval = topic + "[" + str(explIndex) + "/{}] : "
+    ret = topic + "[" + str(explIndex) + "/{}] : "
     index = 0
     length = len(ret)
     page = 1
     while index < len(explrange):
-      addString = `index + 1` + "] " + explrange[index] + " "
+      addString = str(index + 1) + ") " + explrange[index] + "  "
       nextLength = len(addString)
       #ignore too long expls (in case any get through anyway)
       if nextLength > self.msglength:
@@ -52,12 +52,12 @@ class explFeature:
         length = 0
       length += nextLength
       if page == explIndex:
-        ret.join(addString)
+        ret += addString
       index += 1
     if explIndex > page:
       queue.put(("Invalid expl index", channel))
       return
-    queue.put((retval.format(page), channel))  
+    queue.put((ret.format(page), channel))  
 
 
   def add(self, queue, nick, msg, channel):
