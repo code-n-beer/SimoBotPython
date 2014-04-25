@@ -144,7 +144,7 @@ while 1:
         #reload(Features)
         #irc.send("PRIVMSG " + channel + " :sis t. varjosimo\r\n");
 
-    if msg.startswith("http"):
+    if msg.startswith("http") or msg.startswith("www"):
         print "dispatching urltitle"
         p = Process(target=commands["http"], args=(q, nick, msg, channel))
         p.start()
