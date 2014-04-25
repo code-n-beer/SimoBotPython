@@ -3,15 +3,19 @@ import redis
 
 class explFeature:
   
-  
+  config = ConfigParser.ConfigParser() 
+  config.read("Resources/settings.cfg")
+  self.msglength = config.get("expl", "msglength")
+  self.redisport = config.get("expl", "redisport")
+  self.redisdb = config.get("expl", "redisdb")
+
   def __init__(self):
     self.cmdpairs = {
         "!varjoexpl"   : self.explain,
         "!varjoadd"    : self.add,
         "!varjoremove" : self.remove
     }
-    self.msglength = 380 
-    self.connect(6379, 7)
+    self.connect(redisport, redisdb)
 
   def connect(self, p, d):
     self.redis = redis.StrictRedis(host='localhost', port=p, db=d) 
