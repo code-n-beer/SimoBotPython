@@ -1,13 +1,14 @@
 import random
 import redis
+import ConfigParser
 
 class explFeature:
   
   config = ConfigParser.ConfigParser() 
   config.read("Resources/settings.cfg")
-  self.msglength = config.get("expl", "msglength")
-  self.redisport = config.get("expl", "redisport")
-  self.redisdb = config.get("expl", "redisdb")
+  msglength = config.get("expl", "msglength")
+  redisport = config.get("expl", "redisport")
+  redisdb = config.get("expl", "redisdb")
 
   def __init__(self):
     self.cmdpairs = {
@@ -15,7 +16,7 @@ class explFeature:
         "!varjoadd"    : self.add,
         "!varjoremove" : self.remove
     }
-    self.connect(redisport, redisdb)
+    self.connect(self.redisport, self.redisdb)
 
   def connect(self, p, d):
     self.redis = redis.StrictRedis(host='localhost', port=p, db=d) 
