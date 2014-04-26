@@ -85,7 +85,7 @@ class explFeature:
     queue.put(("New expl added!", channel))
 
   def remove(self, queue, nick, msg, channel):
-    msg = msg.split()
+    msg = msg.lower().split()
     if len(msg) == 2:
       if not self.redis.exists(msg[1]):
         queue.put(("No such expl", channel))
