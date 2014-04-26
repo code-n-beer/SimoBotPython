@@ -81,7 +81,7 @@ class explFeature:
     if len(msg[2]) > self.msglength:
       queue.put(("Expl too long, not added", channel))
       return
-    self.redis.rpush(msg[1], msg[2].rstrip())
+    self.redis.rpush(msg[1].lower(), msg[2].rstrip())
     queue.put(("New expl added!", channel))
 
   def remove(self, queue, nick, msg, channel):
