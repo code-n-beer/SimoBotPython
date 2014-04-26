@@ -6,7 +6,7 @@ class explFeature:
   
   config = ConfigParser.ConfigParser() 
   config.read("Resources/settings.cfg")
-  msglength = config.get("expl", "msglength")
+  msglength = 380 
   redisport = config.get("expl", "redisport")
   redisdb = config.get("expl", "redisdb")
 
