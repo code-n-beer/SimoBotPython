@@ -46,7 +46,7 @@ class explFeature:
     length = len(ret)
     page = 1
     while index < len(explrange):
-      addString = "|" + str(index + 1) + "| " + explrange[index].rstrip()  + "  "
+      addString = "[" + str(index + 1) + "] " + explrange[index].rstrip()  + "  "
       nextLength = len(addString)
       #ignore too long expls (in case any get through anyway)
       if nextLength > self.msglength:
