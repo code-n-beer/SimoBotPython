@@ -6,7 +6,7 @@ class horosFeature:
 
     def __init__(self):
         self.cmdpairs = {
-                "!varjohoros" : self.execute
+                "!horos" : self.execute
                 }
         self.horokset = {"oinas": "aries", "härkä".decode('utf-8'): "taurus", "harka": "taurus", "kaksoset": "gemini", "rapu": "cancer", "leijona": "leo", "neitsyt": "virgo", "vaaka": "libra", "skorpioni": "scorpion", "jousimies": "sagittarius", "kauris": "capricorn", "vesimies": "aquarius", "kalat": "pisces" }
 
