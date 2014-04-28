@@ -3,26 +3,26 @@ import redis
 import ConfigParser
 
 class explFeature:
-  
-  config = ConfigParser.ConfigParser() 
+
+  config = ConfigParser.ConfigParser()
   config.read("Resources/settings.cfg")
-  msglength = 380 
+  msglength = 380
   redisport = config.get("expl", "redisport")
   redisdb = config.get("expl", "redisdb")
 
   def __init__(self):
     self.cmdpairs = {
-        "!varjoexpl"   : self.explain,
-        "!varjoadd"    : self.add,
-        "!varjoremove" : self.remove
+        "!expl"   : self.explain,
+        "!add"    : self.add,
+        "!remove" : self.remove
     }
     self.connect(self.redisport, self.redisdb)
 
   def connect(self, p, d):
-    self.redis = redis.StrictRedis(host='localhost', port=p, db=d) 
-  
-   
-  def explain(self, queue, nick, msg, channel): 
+    self.redis = redis.StrictRedis(host='localhost', port=p, db=d)
+
+
+  def explain(self, queue, nick, msg, channel):
     msg = msg.split()
     explIndex = 1
     if len(msg) < 2:
@@ -66,7 +66,7 @@ class explFeature:
       ret = ret.format("")
     else:
       ret = ret.format("[" + str(explIndex) + "/" + str(page) + "]")
-    queue.put((ret, channel))  
+    queue.put((ret, channel))
 
 
 
