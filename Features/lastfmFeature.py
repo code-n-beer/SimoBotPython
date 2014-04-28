@@ -11,8 +11,8 @@ class lastfmFeature:
 
         def __init__(self):
             self.cmdpairs = {
-                    "!varjonp" : self.execute,
-                    "!varjosetlastfm" : self.setlastfm
+                    "!np" : self.execute,
+                    "!setlastfm" : self.setlastfm
                             }
 
         def setlastfm(self, queue, nick, message, channel):
