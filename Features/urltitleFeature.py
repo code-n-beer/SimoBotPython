@@ -12,12 +12,13 @@ class urltitleFeature:
               }
 
   def execute(self, queue, nick, msg, channel):
-    if not msg.startswith("http"):
-      msg = "http://" + msg
+    url = self.findUrl(msg)
+
     response = None
     try:
-      response = urllib2.urlopen(msg)
-      if not response.info().get('Content-Type').startswith('text/html'):
+      response = urllib2.urlopen(url)
+      contentType = response.info().get('Content-Type')
+      if not (contentType.startswith('text/html') or 'xml' in contentType):
         return
       if response.info().get('Content-Encoding') == 'gzip':
         buf = StringIO(response.read())
@@ -30,6 +31,18 @@ class urltitleFeature:
 
     print parser.title
     queue.put(("".join(parser.title), channel))
+
+  def findUrl(self, msg):
+    httpIndex = msg.find("http")
+
+    if httpIndex == -1:
+      httpIndex = msg.find("www")
+    url = msg[httpIndex:].split(" ", 1)[0]
+
+    if not url.startswith("http"):
+      url = "http://" + url
+    
+    return url
     
 
 class titleParser(HTMLParser):
