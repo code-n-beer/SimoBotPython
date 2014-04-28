@@ -46,7 +46,7 @@ class explFeature:
     length = len(ret)
     page = 1
     while index < len(explrange):
-      addString = "\x02[\x0309" + str(index + 1) + "\x0F\x02]\x0F " + explrange[index].rstrip()  + "  "
+      addString = "\x02[\x0309" + str(index + 1) + "\x0F\x02]\x0F " + explrange[index].rstrip()  + " "
       nextLength = len(addString)
       #ignore too long expls (in case any get through anyway)
       if nextLength > self.msglength:
