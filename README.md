@@ -15,6 +15,14 @@ Drinkify
 -------
 `!drinkify <artist>` Suggests you what to drink while listening to `<artist>`. `!drinkify np` suggests a drink according to your Last.fm now playing track. See [Last.fm](#lastfm) from below.
 
+Expl
+----
+`!expl <word>` Shows and explanation for a word.
+
+`!add <word> <explanation>` Adds an expl topic.
+
+`!remove <word> <explanation>` Removes an expl topic or just one expl.
+
 Horoscope
 -----
 
@@ -35,7 +43,7 @@ News
 Pirkkaniksi
 -----------
 
-`!varjoniksi` Returns a random Pirkka Niksi.
+`!niksi` Returns a random Pirkka Niksi.
 
 Pizza-randomer
 --------------
@@ -50,7 +58,7 @@ Reittiopas
 Reverse
 -------
 
-`!varjor <input>` Returns input reversed.
+`!r <input>` Returns input reversed.
 
 Twitter
 -------
@@ -60,12 +68,17 @@ Twitter
 Uguu
 ----
 
-`!varjouguu <input>` Uguu
+`!uguu <input>` Uguu
 
 Unicafe
 -------
 
-`!varjouc` Returns Chemicum and Exactum Unicafe menus for today.
+`!uc` Returns Chemicum and Exactum Unicafe menus for today.
+
+Urltitle
+-------
+
+Returns the title for pasted webpages.
 
 
 Weather
