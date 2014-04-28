@@ -8,7 +8,7 @@ class unicafeFeature:
 
     def __init__(self):
         self.cmdpairs = {
-                "!varjouc" : self.execute
+                "!uc" : self.execute
                 }
 
     def execute(self, queue, nick, msg, channel):
@@ -21,8 +21,8 @@ class unicafeFeature:
           print "fetching menu failed: " + e.reason
           queue.put(("fetching menu failed: " + e.reason, channel))
           return
-        
-      today = datetime.datetime.today().weekday() 
+
+      today = datetime.datetime.today().weekday()
 
       exaLunch = self.parseRSSString(menuExa, "Exactum", today)
       chemLunch = self.parseRSSString(menuChem, "Chemicum", today)
@@ -50,7 +50,7 @@ class unicafeFeature:
       result = restaurant + ": "+result
       return result
 
-    
+
     def generateMenuString(self, todaysMenu, todaysPrices):
       # tän vois tehdä nätimmin
       todaysMenuStrings = []
@@ -61,7 +61,7 @@ class unicafeFeature:
           menuString += " [M]"
         todaysMenuStrings.append(menuString)
         i = i + 1
-          
+
       return " // ".join(todaysMenuStrings)
 
     def html2Txt(self, html):
