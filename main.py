@@ -13,6 +13,7 @@ import inspect
 #import Features.uguuFeature
 #from Features import *
 import Features
+from SimoLightweightApi import SimoLightweightApi
 
 from multiprocessing import Process
 from multiprocessing import Queue
@@ -62,6 +63,11 @@ def loadFeatures():
 loadFeatures()
 
 print commands
+
+# Start Simo Lightweight API
+p = Process(target=SimoLightweightApi().execute, args=(commands,))
+p.start()
+
 
 def sendMsg(irc, message):
     msg, channel = message
