@@ -44,7 +44,7 @@ class SimoLightweightApi:
       command = None
       try:
         command = self.server.commands[message.split(" ")[0]]
-      except Exception:
+      except LookupError:
         self.wfile.write('')
         return
       
@@ -57,9 +57,14 @@ class SimoLightweightApi:
       while i < 200:      # wait 8 seconds
         time.sleep(0.025)
         if not q.empty():
-          result = q.get()[0].encode('utf-8')
+          result = q.get()[0]
           break
         i = i + 1
+
+      try:
+        result = result.encode('utf-8')
+      except UnicodeDecodeError:
+        print 'already in unicode'
 
       self.wfile.write(result)
 
