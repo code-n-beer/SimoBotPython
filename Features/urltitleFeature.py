@@ -19,18 +19,21 @@ class urltitleFeature:
       response = urllib2.urlopen(url)
       contentType = response.info().get('Content-Type')
       if not (contentType.startswith('text/html') or 'xml' in contentType):
+        print 'unknown content'
         return
       if response.info().get('Content-Encoding') == 'gzip':
         buf = StringIO(response.read())
         response = gzip.GzipFile(fileobj=buf)
     except urllib2.URLError, e:
+        print 'urrlib error ' + e.reason
         return
 
     parser = titleParser()
     parser.feed(response.read())
 
+    title = "".join(parser.title).strip()
     print parser.title
-    queue.put(("".join(parser.title), channel))
+    queue.put(title, channel))
 
   def findUrl(self, msg):
     httpIndex = msg.find("http")
