@@ -4,7 +4,7 @@ class pirkkaniksiFeature:
 
     def __init__(self):
         self.cmdpairs = {
-                "!varjoniksi" : self.execute
+                "!niksi" : self.execute
                 }
 
     def execute(self, queue, nick, msg, channel):

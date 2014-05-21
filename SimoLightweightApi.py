@@ -5,6 +5,7 @@ import re
 import time
 from multiprocessing import Process
 from multiprocessing import Queue
+import urllib2 as urllib
 
 class SimoLightweightApi:
 
@@ -34,13 +35,13 @@ class SimoLightweightApi:
       request = self.rfile.read(length)
       request = request.split("=")
       message = request[1]
+      message = urllib.unquote(message).strip().replace("+", " ")
 
       if (len(request) < 2 or request[0] != 'command' or len(message) > 512
           or not self.server.regex.match(message)):
         self.wfile.write('')
         return
       
-      message = message.replace("+", " ")
       command = None
       try:
         command = self.server.commands[message.split(" ")[0]]
@@ -72,7 +73,7 @@ class SimoLightweightApi:
     def __init__(self, *args, **kw):
       HTTPServer.__init__(self, *args[:2], **kw)
       self.commands = args[2]
-      self.regex = re.compile('^![A-Öa-ö!-?_()+*.=/]+$')
+      self.regex = re.compile('^![A-Öa-ö!-?_()+*.=/ ]+$')
       self.motd = """Usage: send command in POST key 'command', acquire Simo's reply in response
 Remember to replace spaces with a +
 
