@@ -25,13 +25,14 @@ class explTriviaFeature:
 
   def newQuestion(self, queue, nick, msg, channel):
     ses = str(self.redisAnswer.get("answer"))
-    print ses
     if self.redisAnswer.exists("answer"):
         queue.put(("What expl? (" + str(self.redisAnswer.get("points")) + " points)  " + str(self.redisAnswer.get("question")), channel))
         return
-    answer = self.redis.randomkey()
-    r = random.randint(0,self.redis.llen(answer)-1)
-    question = self.redis.lindex(answer, r)
+    question = ""
+    while (len(question)<3):
+    	answer = self.redis.randomkey()
+    	r = random.randint(0,self.redis.llen(answer)-1)
+    	question = self.redis.lindex(answer, r)
     self.redisAnswer.set("question", question)
     self.redisAnswer.set("answer", answer)
     self.redisAnswer.set("points", 1)
@@ -54,8 +55,13 @@ class explTriviaFeature:
         self.redisAnswer.delete("answer")
         self.redisAnswer.delete("question")
     else:
-        simomsg = simomsg +"Wrong. This question is now worth " + str(int(qpoints)+1) + " points."
-        self.redisAnswer.set("points",int(qpoints)+1)
+	if int(qpoints)>9:
+		simomsg = "Wrong. The correct answer was " + str(self.redisAnswer.get("answer"))+"."
+		self.redisAnswer.delete("answer")
+		self.redisAnswer.delete("question")
+	else:
+        	simomsg = simomsg +"Wrong. This question is now worth " + str(int(qpoints)+1) + " points."
+        	self.redisAnswer.set("points",int(qpoints)+1)
     queue.put((simomsg, channel))
 
   def hiscores(self, queue, nick, msg, channel):
