@@ -86,7 +86,7 @@ Remember to replace spaces with a +
 
 This server returns empty content on error"""
 
-  def execute(self, commands, queue, port=8887):
+  def execute(self, commands, queue, port=8888):
     serverAddress = ('localhost', port)
     httpd = self.Server(serverAddress, self.Handler, commands, queue)
     print 'Starting http server...'
