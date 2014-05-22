@@ -33,15 +33,21 @@ class SimoLightweightApi:
         self.wfile.write('')
         return
       request = self.rfile.read(length)
+      print request
       request = request.split("=")
       message = request[1]
-      message = urllib.unquote(message).strip().replace("+", " ")
+      message = urllib.unquote(message).strip()
 
-      if (len(request) < 2 or request[0] != 'command' or len(message) > 512
+      if (len(request) < 2 or (request[0] != 'command' and request[0] != 'say') or len(message) > 512
           or not self.server.regex.match(message)):
         self.wfile.write('')
         return
       
+      if request[0] == 'say':
+        print 'saying ' + request[1]
+        self.server.ircQueue.put(("via api: " + request[1], "#simobot"))
+        return
+
       command = None
       try:
         command = self.server.commands[message.split(" ")[0]]
@@ -55,7 +61,7 @@ class SimoLightweightApi:
       
       result = ""
       i = 0
-      while i < 200:      # wait 8 seconds
+      while i < 320:      # wait 8 seconds
         time.sleep(0.025)
         if not q.empty():
           result = q.get()[0]
@@ -73,15 +79,16 @@ class SimoLightweightApi:
     def __init__(self, *args, **kw):
       HTTPServer.__init__(self, *args[:2], **kw)
       self.commands = args[2]
-      self.regex = re.compile('^![A-Öa-ö!-?_()+*.=/ ]+$')
+      self.ircQueue = args[3]
+      self.regex = re.compile('^[A-Öa-ö!-?_()+*.=/ ]+$')
       self.motd = """Usage: send command in POST key 'command', acquire Simo's reply in response
 Remember to replace spaces with a +
 
 This server returns empty content on error"""
 
-  def execute(self, commands, port=8888):
+  def execute(self, commands, queue, port=8887):
     serverAddress = ('localhost', port)
-    httpd = self.Server(serverAddress, self.Handler, commands)
+    httpd = self.Server(serverAddress, self.Handler, commands, queue)
     print 'Starting http server...'
     httpd.serve_forever()
 

@@ -33,7 +33,7 @@ class urltitleFeature:
 
     title = "".join(parser.title).strip()
     print parser.title
-    queue.put(title, channel))
+    queue.put((title, channel))
 
   def findUrl(self, msg):
     httpIndex = msg.find("http")
