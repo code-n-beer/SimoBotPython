@@ -68,7 +68,7 @@ class explFeature:
         ret += addString
       index += 1
     if explIndex > page:
-      return "Invalid expl index"
+      return "Invalid expl index!"
     if explIndex == 0:
       explIndex = page
     if page == 1:
@@ -93,21 +93,14 @@ class explFeature:
 
   def remove(self, queue, nick, msg, channel):
     msg = msg.lower().split()
-    if len(msg) == 2:
-      if not self.redis.exists(msg[1]):
-        queue.put(("No such expl", channel))
-        return
-      self.redis.delete(msg[1])
-      queue.put(("Removed one expl topic!", channel))
-      return
-    elif len(msg) != 3:
+    if len(msg) != 3:
       queue.put(("usage: !remove <topic> [index]", channel))
       return
     elif not self.redis.exists(msg[1]):
-      queue.put(("no such expl", channel))
+      queue.put(("No such expl", channel))
       return
     elif int(msg[2]) <= 0 or int(msg[2]) > self.redis.llen(msg[1]):
-      queue.put(("bad index", channel))
+      queue.put(("Bad index", channel))
       return
     if int(msg[2]) == 1:
       newRangeHead = {}
