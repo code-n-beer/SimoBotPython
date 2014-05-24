@@ -23,7 +23,7 @@ class explFeature:
 
 
   def explain(self, queue, nick, msg, channel):
-    msg = msg.split(d)
+    msg = msg.split()
     explIndex = 1
     if len(msg) < 2:
       topic = self.redis.randomkey()
