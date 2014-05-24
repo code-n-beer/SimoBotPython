@@ -20,7 +20,7 @@ def face():
 
 class motoFeature:
     def __init__(self):
-        self.cmdpairs = { "!mötö" : self.execute }
+        self.cmdpairs = { u"!mötö" : self.execute }
 
     def execute(self, queue, nick, msg, channel):
         try:
