@@ -44,9 +44,9 @@ class urltitleFeature:
 
     if not url.startswith("http"):
       url = "http://" + url
-    
+
     return url
-    
+
 
 class titleParser(HTMLParser):
   def __init__(self):
