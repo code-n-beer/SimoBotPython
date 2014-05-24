@@ -23,7 +23,7 @@ class explFeature:
 
 
   def explain(self, queue, nick, msg, channel):
-    msg = msg.split()
+    msg = msg.split(d)
     explIndex = 1
     if len(msg) < 2:
       topic = self.redis.randomkey()
@@ -31,43 +31,50 @@ class explFeature:
         queue.put(("Expl database empty!", channel))
         return
     else:
-      topic = msg[1].lower()
-      if(not self.redis.exists(topic)):
-        queue.put(("No such expl", channel))
-        return
+      topic = msg[1].lower() 
       if len(msg) > 2:
-        explIndex = int(msg[2])
-        if explIndex <= 0:
-          queue.put(("Invalid expl index", channel))
+        explIndex = msg[2]
+        if not explIndex.isdigit():
+          queue.put(("Invalid expl index!", channel))
           return
+        else:
+          explIndex = int(explIndex)
+    queue.put((self.getMsg(topic, explIndex), channel))
+
+  def getMsg(self, topic, explIndex):
+    if (not self.redis.exists(topic)):
+      return "No such expl"
     explrange = self.redis.lrange(topic, 0, self.redis.llen(topic))
-    ret = (topic + "{} : ").encode('utf-8')
+    header = (topic + "{} : ").encode('utf-8')
     index = 0
-    length = len(ret)
     page = 1
+    length = 0
+    ret = ""
     while index < len(explrange):
       addString = "\x02[\x0309" + str(index + 1) + "\x0F\x02]\x0F " + explrange[index].rstrip()  + "\x0F "
       nextLength = len(addString)
-      #ignore too long expls (in case any get through anyway)
-      if nextLength > self.msglength:
+      #CASE: too long expl
+      if nextLength + len(header) > self.msglength:
         index += 1
         continue
-      if length + nextLength > self.msglength:
+      #CASE: page full
+      if length + nextLength + len(header) > self.msglength:
         page += 1
         length = 0
+        if explIndex == 0:
+          ret = ""
       length += nextLength
-      if page == explIndex:
+      if page == explIndex or explIndex == 0:
         ret += addString
       index += 1
     if explIndex > page:
-      queue.put(("Invalid expl index", channel))
-      return
+      return "Invalid expl index"
+    if explIndex == 0:
+      explIndex = page
     if page == 1:
-      ret = ret.format("")
+      return header.format("") + ret
     else:
-      ret = ret.format("[" + str(explIndex) + "/" + str(page) + "]")
-    queue.put((ret, channel))
-
+      return header.format("[" + str(explIndex) + "/" + str(page) + "]") + ret
 
 
   def add(self, queue, nick, msg, channel):
@@ -82,7 +89,7 @@ class explFeature:
       queue.put(("Expl too long, not added", channel))
       return
     self.redis.rpush(msg[1].lower(), msg[2].rstrip())
-    queue.put(("New expl added!", channel))
+    queue.put((self.getMsg(msg[1], 0), channel))
 
   def remove(self, queue, nick, msg, channel):
     msg = msg.lower().split()
