@@ -65,7 +65,7 @@ loadFeatures()
 print commands
 
 # Start Simo Lightweight API
-p = Process(target=SimoLightweightApi().execute, args=(commands,))
+p = Process(target=SimoLightweightApi().execute, args=(commands,q,))
 p.start()
 
 
