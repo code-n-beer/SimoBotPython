@@ -7,6 +7,12 @@ def vittu():
     else:
         return ""
 
+def tuu():
+    if random.randint(0, 8) < 4:
+        return "tuus ny tänne "
+    else:
+        return ""
+
 def mouth():
     s = "_"
 
@@ -18,9 +24,15 @@ def mouth():
 def face():
     return vittu() + "/" + mouth() + "\\"
 
+def happyface():
+    return tuu() + "^" + mouth() + "^"
+
 class motoFeature:
     def __init__(self):
-        self.cmdpairs = { u"!mötö" : self.execute }
+        self.cmdpairs = {
+                u"!mötö" : self.execute,
+                u"!unmötö" : self.execute2
+                }
 
     def execute(self, queue, nick, msg, channel):
         try:
@@ -29,5 +41,14 @@ class motoFeature:
             target = ""
 
         text = target + face()
-        print text
         queue.put((text, channel))
+
+    def execute2(self, queue, nick, msg, channel):
+        try:
+            target = msg.split()[1] + ": "
+        except IndexError:
+            target = ""
+
+        text = target + happyface()
+        queue.put((text, channel))
+
