@@ -1,4 +1,4 @@
-jmport random
+import random
 import redis
 import ConfigParser
 
