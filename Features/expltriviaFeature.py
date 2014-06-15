@@ -33,15 +33,15 @@ class explTriviaFeature:
 		if qpoints < 3:
 			simomsg = simomsg + " | " + str(self.redisAnswer.get("hint2"))
 		queue.put((simomsg, channel))
-        
+
 		return
     question = ""
 	explSize = 0
-    while (len(question)<3 or explSize<3):
-    	answer = self.redis.randomkey()
+    while (len(question)<3 or explSize<3
+        answer = self.redis.randomkey()
 		explSize = self.redis.llen(answer)
-    	r = random.randint(0, explSize - 1)
-    	question = self.redis.lindex(answer, r)
+        r = random.randint(0, explSize - 1)
+        question = self.redis.lindex(answer, r)
 	r2 = r
 	while (r2 == r):
 		r2 = random.randint(0, explSize - 1)
@@ -77,12 +77,12 @@ class explTriviaFeature:
 		simomsg = "Wrong. The correct answer was " + str(self.redisAnswer.get("answer"))+"."
 		self.redisAnswer.delete("answer")
 		self.redisAnswer.delete("question")
-	else:
-        	simomsg = "Wrong. What expl? " + str(self.redisAnswer.get("question")) + " | " + str(self.redisAnswer.get("hint1"))
-			if qpoints <5:
-				simomsg = simomsg + " | " + self.redisAnswer.get("hint2")			
-			simomsg = simomsg + "(" + str(int(qpoints)-2) + " points)"
-        	self.redisAnswer.set("points",int(qpoints)-2)
+	else
+        simomsg = "Wrong. What expl? " + str(self.redisAnswer.get("question")) + " | " + str(self.redisAnswer.get("hint1"))
+        if qpoints <5:
+            simomsg = simomsg + " | " + self.redisAnswer.get("hint2")
+        simomsg = simomsg + "(" + str(int(qpoints)-2) + " points)"
+        self.redisAnswer.set("points",int(qpoints)-2)
     queue.put((simomsg, channel))
 
   def hiscores(self, queue, nick, msg, channel):

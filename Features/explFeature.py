@@ -31,7 +31,7 @@ class explFeature:
         queue.put(("Expl database empty!", channel))
         return
     else:
-      topic = msg[1].lower() 
+      topic = msg[1].lower()
       if len(msg) > 2:
         explIndex = msg[2]
         if not explIndex.isdigit():
@@ -42,6 +42,7 @@ class explFeature:
     queue.put((self.getMsg(topic, explIndex), channel))
 
   def getMsg(self, topic, explIndex):
+    topic = topic.strip().lower()
     if (not self.redis.exists(topic)):
       return "No such expl"
     explrange = self.redis.lrange(topic, 0, self.redis.llen(topic))
