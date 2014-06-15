@@ -82,7 +82,7 @@ class explTriviaFeature:
 					simomsg = simomsg + " | " + self.redisAnswer.get("hint2")
 				simomsg = simomsg + " (" + str(int(qpoints)-2) + " points)"
 				self.redisAnswer.set("points",int(qpoints)-2)
-				queue.put((simomsg, channel))
+		queue.put((simomsg, channel))
 
 	def hiscores(self, queue, nick, msg, channel):
 		msg = msg.split(' ')
