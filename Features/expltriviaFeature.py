@@ -12,7 +12,7 @@ class explTriviaFeature:
 
 	def __init__(self):
 		self.cmdpairs = {
-			"!trivia"   : self.newQuestion,
+			"!trivia"   : self.question,
 			"!answer"   : self.answer,
 			"!hiscore"  : self.hiscores
 		}
@@ -23,14 +23,14 @@ class explTriviaFeature:
 		self.redisAnswer = redis.StrictRedis(host='localhost', port=p, db=15)
 		self.redisHS = redis.StrictRedis(host='localhost', port=p, db=14)
 
-	def newQuestion(self, queue, nick, msg, channel):
+	def question(self, queue, nick, msg, channel):
 		ses = str(self.redisAnswer.get("answer"))
 		if self.redisAnswer.exists("answer"):
 			qpoints = self.redisAnswer.get("points")
 			simomsg = "What expl? (" + str(qpoints) + " points)  " + str(self.redisAnswer.get("question"))
-			if qpoints < 5:
+			if int(qpoints) < 5:
 				simomsg = simomsg + " | " + str(self.redisAnswer.get("hint1"))
-			if qpoints < 3:
+			if int(qpoints) < 3:
 				simomsg = simomsg + " | " + str(self.redisAnswer.get("hint2"))
 			queue.put((simomsg, channel))
 			return
