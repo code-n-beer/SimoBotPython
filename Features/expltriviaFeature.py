@@ -1,4 +1,4 @@
-import random
+jmport random
 import redis
 import ConfigParser
 
@@ -78,7 +78,7 @@ class explTriviaFeature:
 				self.redisAnswer.delete("question")
 			else:
 				simomsg = "Wrong. What expl? " + str(self.redisAnswer.get("question")) + " | " + str(self.redisAnswer.get("hint1"))
-				if qpoints <5:
+				if int(qpoints) <5:
 					simomsg = simomsg + " | " + str(self.redisAnswer.get("hint2"))
 				simomsg = simomsg + " (" + str(int(qpoints)-2) + " points)"
 				self.redisAnswer.set("points",int(qpoints)-2)
