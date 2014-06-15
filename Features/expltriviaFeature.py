@@ -26,8 +26,15 @@ class explTriviaFeature:
   def newQuestion(self, queue, nick, msg, channel):
     ses = str(self.redisAnswer.get("answer"))
     if self.redisAnswer.exists("answer"):
-        queue.put(("What expl? (" + str(self.redisAnswer.get("points")) + " points)  " + str(self.redisAnswer.get("question")), channel))
-        return
+        qpoints = self.redisAnswer.get("points")
+		simomsg = "What expl? (" + str(qpoints) + " points)  " + str(self.redisAnswer.get("question"))
+		if qpoints < 5:
+			simomsg = simomsg + " | " + str(self.redisAnswer.get("hint1"))
+		if qpoints < 3:
+			simomsg = simomsg + " | " + str(self.redisAnswer.get("hint2"))
+		queue.put((simomsg, channel))
+        
+		return
     question = ""
 	explSize = 0
     while (len(question)<3 or explSize<3):
@@ -66,7 +73,7 @@ class explTriviaFeature:
         self.redisAnswer.delete("answer")
         self.redisAnswer.delete("question")
     else:
-	if int(qpoints) == 1:
+	if int(qpoints) < 2:
 		simomsg = "Wrong. The correct answer was " + str(self.redisAnswer.get("answer"))+"."
 		self.redisAnswer.delete("answer")
 		self.redisAnswer.delete("question")
