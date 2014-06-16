@@ -56,7 +56,7 @@ class explTriviaFeature:
 
 
 	def answer(self, queue, nick, msg, channel):
-		if (!exists(self.redisAnswer.get("answer"):
+		if (not exists(self.redisAnswer.get("answer"):
 			return
 		answer = str(self.redisAnswer.get("answer"))
 		simomsg = ""
