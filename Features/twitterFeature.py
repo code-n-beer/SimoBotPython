@@ -14,55 +14,11 @@ class twitterFeature:
 
     def __init__(self):
         self.cmdpairs = {
-                "!twitter" : self.execute,
                 "!tweet" : self.tweet,
                 "!follow" : self.follow,
                 "!unfollow" :self.unfollow
                 }
         self.twitter = Twitter(auth=self.auth)
-
-    #Read tweets from userstream
-    def execute(self, queue, nick, msg, channel):
-        stream = TwitterStream(auth=self.auth, domain='userstream.twitter.com')
-        print "Opened Twitter userstream"
-        queue.put(("Opened Twitter userstream", channel))
-        try:
-            for msg in stream.user():
-                try:
-                    if msg['user']['id'] != 1220480214: # Dont read own tweets
-                        user = msg['user']['name']
-                        text = msg['text']
-                        queue.put(("Tweet from %s: %s" %(user, text), channel))
-                except KeyError:
-                    # Not a tweet (favourite/retweet etc.)
-                    pass
-                #Disconnect messages
-                try:
-                    #reason = msg['disconnect']['reason']
-                    reason = self.disconnectCode(msg['disconnect']['code'])
-                    queue.put(("Twitter stream disconnected: %s" %(reason), channel))
-                except KeyError:
-                    pass
-        except TwitterError, e:
-            print "Twitter stream disconnected: %s" %e
-            shorte = str(e).split("details: ",1)[1]
-            queue.put(("Twitter stream disconnected: %s" %shorte, channel))
-
-    def disconnectCode(self, code):
-        codes = {
-                1: u"Shutdown",
-                2: u"Duplicate stream",
-                3: u"Control request",
-                4: u"Stall",
-                5: u"Normal",
-                6: u"Token revoked",
-                7: u"Admin logout",
-                9: u"Max message limit",
-                10: u"Stream exception",
-                11: u"Broker stall",
-                12: u"Shed load",
-                }
-        return codes[int(code)]
 
     def follow(self, queue, nick, msg, channel):
         name = msg.split()[1].strip()
