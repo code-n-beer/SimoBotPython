@@ -5,7 +5,7 @@ class reverseFeature:
 
     def __init__(self):
        self.cmdpairs = {
-            "!varjouguu" : self.execute
+            "!uguu" : self.execute
             }
 
 

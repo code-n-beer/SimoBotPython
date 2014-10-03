@@ -4,7 +4,7 @@ class uguuFeature:
     #cmd = "!varjor"
     def __init__(self):
        self.cmdpairs = {
-            "!varjor" : self.execute
+            "!r" : self.execute
             }
 
     def execute(self, queue, nick, message, channel):

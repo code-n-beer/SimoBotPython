@@ -6,7 +6,7 @@ class horosFeature:
 
     def __init__(self):
         self.cmdpairs = {
-                "!varjohoros" : self.execute
+                "!horos" : self.execute
                 }
         self.horokset = {"oinas": "aries", "härkä".decode('utf-8'): "taurus", "harka": "taurus", "kaksoset": "gemini", "rapu": "cancer", "leijona": "leo", "neitsyt": "virgo", "vaaka": "libra", "skorpioni": "scorpion", "jousimies": "sagittarius", "kauris": "capricorn", "vesimies": "aquarius", "kalat": "pisces" }
 
@@ -42,9 +42,6 @@ class horosFeature:
     def dropHtmlPrecedingHoroscope(self, html, sign):
         sign = sign[1:]
         tagCount = datetime.datetime.today().weekday() + 1
-
-        if tagCount > 14 or tagCount < 2:
-            return "invalid date"
 
         htmlArray = html.split(sign + "</h3><p>", tagCount + 1)
         result = htmlArray[tagCount]

@@ -13,6 +13,7 @@ import inspect
 #import Features.uguuFeature
 #from Features import *
 import Features
+from SimoLightweightApi import SimoLightweightApi
 
 from multiprocessing import Process
 from multiprocessing import Queue
@@ -62,6 +63,11 @@ def loadFeatures():
 loadFeatures()
 
 print commands
+
+# Start Simo Lightweight API
+p = Process(target=SimoLightweightApi().execute, args=(commands,q,))
+p.start()
+
 
 def sendMsg(irc, message):
     msg, channel = message
@@ -132,7 +138,7 @@ while 1:
 
     print nick + ": " + msg;
 
-    if "!reload" in msg:
+    if msg.startswith("!reload"):
         #sendMsg(irc,channel,"reload")
         #reloadModules(modules)
         reload(Features)
@@ -143,6 +149,11 @@ while 1:
         #loadFeatures(False)
         #reload(Features)
         #irc.send("PRIVMSG " + channel + " :sis t. varjosimo\r\n");
+
+    if "http" in msg or "www" in msg:
+        print "dispatching urltitle"
+        p = Process(target=commands["http"], args=(q, nick, msg, channel))
+        p.start()
 
     stringdes = msg.split()
     if len(stringdes) < 1:

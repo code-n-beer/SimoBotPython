@@ -55,3 +55,4 @@ docs/_build/
 # Vim swap files
 *.swp
 
+Resources/settings.cfg
