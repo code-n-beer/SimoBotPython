@@ -63,7 +63,9 @@ Reverse
 Twitter
 -------
 
-`!tweet <input>` Tweets input. Twitter stream and following/unfollowing coming soon.
+`!tweet <input>` Tweets input.
+`!follow <handle>` Follows user.
+`!unfollow <handle>` Unfollows user.
 
 Uguu
 ----
