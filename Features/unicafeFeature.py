@@ -28,9 +28,6 @@ class unicafeFeature:
       chemLunch = self.parseRSSString(menuChem, "Chemicum", today)
       result = exaLunch + " /::/ " + chemLunch
 
-      # vittuun ne päivän hedelmät
-      result = re.sub(r' \( .* \)$','',result)
-
       print result
       queue.put((result, channel))
 
@@ -40,7 +37,12 @@ class unicafeFeature:
 
       result = "no lunch today"
       if today < len(root):
-        tmpstring = "<root>" + root[today].text.encode('utf-8').replace(">,",">") + "</root>"
+
+        tmpstring = root[today].text.encode('utf-8').replace('>,','>')
+        # vittuun ne päivän hedelmät
+        tmpstring = re.sub(r'<span class="meal">(Päivän )?(H|h)edelmä.*(;|\))</span>','',tmpstring)
+        tmpstring = "<root>" + tmpstring + "</root>"
+
         todaysMenu = ET.XML(tmpstring)
         todaysPrices = todaysMenu.findall(".p/span[@class='priceinfo']")
         todaysMenu = todaysMenu.findall("./p/span[@class='meal']")
