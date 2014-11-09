@@ -13,7 +13,7 @@ import inspect
 #import Features.uguuFeature
 #from Features import *
 import Features
-from SimoLightweightApi import SimoLightweightApi
+from LightweightApi import SimoLightweightApi
 
 from multiprocessing import Process
 from multiprocessing import Queue
