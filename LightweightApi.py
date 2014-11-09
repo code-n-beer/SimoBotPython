@@ -1,5 +1,6 @@
 # vim: set fileencoding=UTF-8 :
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import urlparse
 import SocketServer
 import re
 import time
@@ -34,29 +35,33 @@ class SimoLightweightApi:
         return
       request = self.rfile.read(length)
       print request
-      request = request.split("=")
-      message = request[1]
-      message = urllib.unquote(message).strip()
+      print urlparse.parse_qs(request)
 
-      if (len(request) < 2 or (request[0] != 'command' and request[0] != 'say') or len(message) > 512
-          or not self.server.regex.match(message)):
+      request = urlparse.parse_qs(request)
+      if not 'command' in request or not self.server.regex.match(request['command'][0]) \
+          or len(request['command'][0]) > 510:
         self.wfile.write('')
         return
+      message = urllib.unquote(request['command'][0]).strip()
+
+      sender = 'HttpApi'
+      if 'sender' in request and self.server.regex.match(request['sender'][0]) \
+          and len(request['sender'][0]) <= 40:
+        sender = urllib.unquote(request['sender'][0]).strip()
       
-      if request[0] == 'say':
-        print 'saying ' + request[1]
-        self.server.ircQueue.put(("via api: " + request[1], "#simobot"))
-        return
+      commandStr = message.split(" ")[0]
+      if "http" in message or "www" in message:
+        commandStr = "http"
 
       command = None
       try:
-        command = self.server.commands[message.split(" ")[0]]
+        command = self.server.commands[commandStr]
       except LookupError:
         self.wfile.write('')
         return
       
       q = Queue()
-      p = Process(target=command, args=(q, 'HttpApi', message, '#simobot'))
+      p = Process(target=command, args=(q, sender, message, '#simobot'))
       p.start()
       
       result = ""
@@ -86,7 +91,7 @@ Remember to replace spaces with a +
 
 This server returns empty content on error"""
 
-  def execute(self, commands, queue, port=8888):
+  def execute(self, commands, queue, port=8889):
     serverAddress = ('localhost', port)
     httpd = self.Server(serverAddress, self.Handler, commands, queue)
     print 'Starting http server...'
