@@ -34,7 +34,6 @@ class SimoLightweightApi:
         self.wfile.write('')
         return
       request = self.rfile.read(length)
-      print request
       print urlparse.parse_qs(request)
 
       request = urlparse.parse_qs(request)
@@ -43,6 +42,10 @@ class SimoLightweightApi:
         self.wfile.write('')
         return
       message = urllib.unquote(request['command'][0]).strip()
+      try:
+        message = message.decode('utf-8')
+      except Exception:
+        print 'already decoded'
 
       sender = 'HttpApi'
       if 'sender' in request and self.server.regex.match(request['sender'][0]) \
@@ -77,6 +80,7 @@ class SimoLightweightApi:
         result = result.encode('utf-8')
       except UnicodeDecodeError:
         print 'already in unicode'
+      print result
 
       self.wfile.write(result)
 
@@ -91,7 +95,7 @@ Remember to replace spaces with a +
 
 This server returns empty content on error"""
 
-  def execute(self, commands, queue, port=8889):
+  def execute(self, commands, queue, port=8888):
     serverAddress = ('localhost', port)
     httpd = self.Server(serverAddress, self.Handler, commands, queue)
     print 'Starting http server...'
