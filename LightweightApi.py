@@ -51,22 +51,19 @@ class SimoLightweightApi:
       if 'sender' in request and self.server.regex.match(request['sender'][0]) \
           and len(request['sender'][0]) <= 40:
         sender = urllib.unquote(request['sender'][0]).strip()
-      
-      commandStr = message.split(" ")[0]
-      if "http" in message or "www" in message:
-        commandStr = "http"
 
+      commandStr = message.split(" ")[0]
       command = None
       try:
         command = self.server.commands[commandStr]
       except LookupError:
         self.wfile.write('')
         return
-      
+
       q = Queue()
       p = Process(target=command, args=(q, sender, message, '#simobot'))
       p.start()
-      
+
       result = ""
       i = 0
       while i < 320:      # wait 8 seconds
