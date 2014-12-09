@@ -37,16 +37,16 @@ class SimoLightweightApi:
       print urlparse.parse_qs(request)
 
       request = urlparse.parse_qs(request)
-      if not 'command' in request or not self.server.regex.match(request['command'][0]) \
-          or len(request['command'][0]) > 510:
+      if not 'command' in request or len(request['command'][0]) > 510:
         self.wfile.write('')
         return
-      message = urllib.unquote(request['command'][0]).strip()
+      message = request['command'][0].strip()
       try:
         message = message.decode('utf-8')
       except Exception:
         print 'already decoded'
 
+      print message;
       sender = 'HttpApi'
       if 'sender' in request and self.server.regex.match(request['sender'][0]) \
           and len(request['sender'][0]) <= 40:
