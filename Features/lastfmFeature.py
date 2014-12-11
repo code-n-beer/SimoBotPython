@@ -7,7 +7,7 @@ class lastfmFeature:
         network = pylast.LastFMNetwork(
                 api_key=config.get('lastfm','API_KEY'),
                 api_secret=config.get('lastfm','API_SECRET'))
-        r = redis.StrictRedis(host='localhost', port=6381, db=1)
+        r = redis.StrictRedis(host='localhost', port=6379, db=1)
 
         def __init__(self):
             self.cmdpairs = {

@@ -16,7 +16,7 @@ class explTriviaFeature:
 			"!answer"   : self.answer,
 			"!hiscore"  : self.hiscores
 		}
-		self.connect(self.redisport, self.redisdb)
+		self.connect(int(self.redisport), self.redisdb)
 
 	def connect(self, p, d):
 		self.redis = redis.StrictRedis(host='localhost', port=p, db=d)
