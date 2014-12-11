@@ -19,7 +19,6 @@ from multiprocessing import Process
 from multiprocessing import Queue
 
 
-print sys.version
 
 configparser = ConfigParser.ConfigParser()
 configparser.read("Resources/settings.cfg")
