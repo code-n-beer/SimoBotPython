@@ -1,0 +1,3 @@
+[submodule "Features/SyntaxMachine"]
+	path = Features/SyntaxMachine
+	url = https://github.com/iorena/SyntaxMachine
