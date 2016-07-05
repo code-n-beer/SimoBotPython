@@ -41,7 +41,7 @@ class explFeature:
           explIndex = int(explIndex)
     queue.put((self.getMsg(topic, explIndex), channel))
 
-  def getMsg(self, topic, explIndex):
+  def getMsg(self, topic, explIndex, search = None):
     topic = topic.strip().lower()
     if (not self.redis.exists(topic)):
       return "No such expl"
@@ -52,6 +52,9 @@ class explFeature:
     length = 0
     ret = ""
     while index < len(explrange):
+      if search is not None and explrange[index].lower().find(search) == -1:
+        index += 1
+        continue
       addString = "\x02[\x0309" + str(index + 1) + "\x0F\x02]\x0F " + explrange[index].rstrip()  + "\x0F "
       nextLength = len(addString)
       #CASE: too long expl
