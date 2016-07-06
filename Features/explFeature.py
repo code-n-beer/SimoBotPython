@@ -14,13 +14,19 @@ class explFeature:
     self.cmdpairs = {
         "!expl"   : self.explain,
         "!add"    : self.add,
-        "!remove" : self.remove
+        "!remove" : self.remove,
+        "!find"   : self.find
     }
     self.connect(int(self.redisport), self.redisdb)
 
   def connect(self, p, d):
     self.redis = redis.StrictRedis(host='localhost', port=p, db=d)
 
+  def find(self, queue, nick, msg, channel):
+    msg = msg.split()
+    topic = msg[1].lower()
+    content = msg[2]
+    queue.put((self.getMsg(topic, 1, content), channel))
 
   def explain(self, queue, nick, msg, channel):
     msg = msg.split()
@@ -52,7 +58,7 @@ class explFeature:
     length = 0
     ret = ""
     while index < len(explrange):
-      if search is not None and explrange[index].lower().find(search) == -1:
+      if (search is not None and explrange[index].lower().find(search.encode('utf-8')) == -1):
         index += 1
         continue
       addString = "\x02[\x0309" + str(index + 1) + "\x0F\x02]\x0F " + explrange[index].rstrip()  + "\x0F "
@@ -75,6 +81,8 @@ class explFeature:
       return "Invalid expl index!"
     if explIndex == 0:
       explIndex = page
+    if search is not None and length == 0:
+      return header.format("") + "No occurrences of " + search
     if page == 1:
       return header.format("") + ret
     else:
