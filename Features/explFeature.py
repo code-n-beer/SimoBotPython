@@ -25,8 +25,17 @@ class explFeature:
   def find(self, queue, nick, msg, channel):
     msg = msg.split()
     topic = msg[1].lower()
-    content = msg[2]
-    queue.put((self.getMsg(topic, 1, content), channel))
+    content = msg[2].lower()
+    if len(msg) > 3:
+      explIndex = msg[3]
+      if not explIndex.isdigit():
+        queue.put(("Invalid expl index!", channel))
+        return
+      else:
+        explIndex = int(explIndex)
+    else:
+      explIndex = 1
+    queue.put((self.getMsg(topic, explIndex, content), channel))
 
   def explain(self, queue, nick, msg, channel):
     msg = msg.split()
@@ -53,12 +62,13 @@ class explFeature:
       return "No such expl"
     explrange = self.redis.lrange(topic, 0, self.redis.llen(topic))
     header = (topic + "{} : ").encode('utf-8')
+    search = search.encode('utf-8')
     index = 0
     page = 1
     length = 0
     ret = ""
     while index < len(explrange):
-      if (search is not None and explrange[index].lower().find(search.encode('utf-8')) == -1):
+      if (search is not None and explrange[index].lower().find(search) == -1):
         index += 1
         continue
       addString = "\x02[\x0309" + str(index + 1) + "\x0F\x02]\x0F " + explrange[index].rstrip()  + "\x0F "
