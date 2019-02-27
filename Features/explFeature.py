@@ -62,7 +62,8 @@ class explFeature:
       return "No such expl"
     explrange = self.redis.lrange(topic, 0, self.redis.llen(topic))
     header = (topic + "{} : ").encode('utf-8')
-    search = search.encode('utf-8')
+    if search is not None:
+      search = search.encode('utf-8')
     index = 0
     page = 1
     length = 0

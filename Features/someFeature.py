@@ -27,7 +27,7 @@ class someFeature:
             print "IOERROR while opening .some.tmp, ignoring"
             pass
 
-        if not mostSharedArticles or now - timedelta(hours = 1) > mostSharedArticles['lastFetch']:
+        if not mostSharedArticles or now - timedelta(days = 1) > mostSharedArticles['lastFetch']:
             q = GetTopSharedArticles(date = dateString, count = 30)
             res = self.er.execQuery(q)
             if res[dateString]:
