@@ -7,6 +7,7 @@ class explFeature:
   config = ConfigParser.ConfigParser()
   config.read("Resources/settings.cfg")
   msglength = 380
+  redishost = config.get("expl", "redishost")
   redisport = config.get("expl", "redisport")
   redisdb = config.get("expl", "redisdb")
 
@@ -17,10 +18,10 @@ class explFeature:
         "!remove" : self.remove,
         "!find"   : self.find
     }
-    self.connect(int(self.redisport), self.redisdb)
+    self.connect(self.redishost, int(self.redisport), self.redisdb)
 
-  def connect(self, p, d):
-    self.redis = redis.StrictRedis(host='localhost', port=p, db=d)
+  def connect(self, h, p, d):
+    self.redis = redis.StrictRedis(host=h, port=p, db=d)
 
   def find(self, queue, nick, msg, channel):
     msg = msg.split()
