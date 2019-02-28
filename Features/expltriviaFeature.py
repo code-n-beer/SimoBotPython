@@ -7,6 +7,7 @@ class explTriviaFeature:
 
 	config = ConfigParser.ConfigParser()
 	config.read("Resources/settings.cfg")
+	redishost = config.get("expl", "redishost")
 	redisport = config.get("expl", "redisport")
 	redisdb = config.get("expl", "redisdb")
 
@@ -16,12 +17,12 @@ class explTriviaFeature:
 			"!answer"   : self.answer,
 			"!hiscore"  : self.hiscores
 		}
-		self.connect(int(self.redisport), self.redisdb)
+		self.connect(self.redishost, int(self.redisport), self.redisdb)
 
-	def connect(self, p, d):
-		self.redis = redis.StrictRedis(host='localhost', port=p, db=d)
-		self.redisAnswer = redis.StrictRedis(host='localhost', port=p, db=15)
-		self.redisHS = redis.StrictRedis(host='localhost', port=p, db=14)
+	def connect(self, h, p, d):
+		self.redis = redis.StrictRedis(host=h, port=p, db=d)
+		self.redisAnswer = redis.StrictRedis(host=h, port=p, db=15)
+		self.redisHS = redis.StrictRedis(host=h, port=p, db=14)
 
 	def question(self, queue, nick, msg, channel):
 		ses = str(self.redisAnswer.get("answer"))
