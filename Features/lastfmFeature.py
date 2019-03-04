@@ -10,7 +10,7 @@ class lastfmFeature:
         redishost = config.get("lastfm", "redishost")
         redisport = config.get("lastfm", "redisport")
         redisdb = config.get("lastfm", "redisdb")
-        r = redis.StrictRedis(self.redishost, int(self.redisport), self.redisdb)
+        r = redis.StrictRedis(redishost, int(redisport), redisdb)
 
         def __init__(self):
             self.cmdpairs = {
