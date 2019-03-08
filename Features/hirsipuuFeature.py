@@ -7,8 +7,8 @@ class hangmanFeature:
   config = ConfigParser.ConfigParser()
   config.read("Resources/settings.cfg")
   msglength = 380
-  redisport = config.get("expl", "redisport")
-  redisdb = config.get("expl", "redisdb")
+  redisport = config.get("redis", "redisport")
+  redisdb = config.get("redis", "redisdb")
 
   def __init__(self):
     self.cmdpairs = {
