@@ -9,7 +9,7 @@ class explFeature:
   msglength = 380
   redishost = config.get("redis", "redishost")
   redisport = config.get("redis", "redisport")
-  redisdb = config.get("redis", "redisdb")
+  redisdb = config.get("expl", "redisdb")
 
   def __init__(self):
     self.cmdpairs = {

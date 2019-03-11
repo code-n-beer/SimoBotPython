@@ -9,7 +9,7 @@ class explTriviaFeature:
 	config.read("Resources/settings.cfg")
 	redishost = config.get("redis", "redishost")
 	redisport = config.get("redis", "redisport")
-	redisdb = config.get("redis", "redisdb")
+	redisdb = config.get("expl", "redisdb")
 
 	def __init__(self):
 		self.cmdpairs = {

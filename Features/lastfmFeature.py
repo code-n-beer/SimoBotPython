@@ -9,7 +9,7 @@ class lastfmFeature:
                 api_secret=config.get('lastfm','API_SECRET'))
         redishost = config.get("redis", "redishost")
         redisport = config.get("redis", "redisport")
-        redisdb = config.get("redis", "redisdb")
+        redisdb = config.get("lastfm", "redisdb")
         r = redis.StrictRedis(redishost, int(redisport), redisdb)
 
         def __init__(self):
