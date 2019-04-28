@@ -8,7 +8,7 @@ class word2vecFeature:
            "!similarn": self.executen,
            "!likexytoz": self.executexyz
        }
-       self.model = gensim.models.Word2Vec.load("./Resources/word2vec_2016-2019_04.model")
+       self.model = gensim.models.Word2Vec.load("./Resources/word2vec_2014-2019_04.model")
 
     def executexyz(self, queue, nick, msg, channel):
         words = msg.split()
