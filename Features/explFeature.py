@@ -73,7 +73,7 @@ class explFeature:
       if (search is not None and explrange[index].lower().find(search) == -1):
         index += 1
         continue
-      addString = "\x02[\x0309" + str(index + 1) + "\x0F\x02]\x0F " + explrange[index].rstrip()  + "\x0F "
+      addString = "\x02[\x0309" + str(index + 1) + "\x0F\x02]\x0F " + explrange[index].rstrip()  + " \x0F "
       nextLength = len(addString)
       #CASE: too long expl
       if nextLength + len(header) > self.msglength:
