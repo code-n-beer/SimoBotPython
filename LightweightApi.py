@@ -46,7 +46,7 @@ class SimoLightweightApi:
       except Exception:
         print 'already decoded'
 
-      print message;
+      #print message;
       sender = 'HttpApi'
       if 'sender' in request and self.server.regex.match(request['sender'][0]) \
           and len(request['sender'][0]) <= 40:
