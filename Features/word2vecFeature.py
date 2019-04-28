@@ -25,7 +25,8 @@ class word2vecFeature:
             val, prob = result
             results.append(val)
 
-        ret_val = ' '.join(results)
+        ret_val = u' '.join(results).encode('utf-8').strip()
+
         queue.put((ret_val, channel))
 
     def execute(self, queue, nick, msg, channel):
@@ -41,5 +42,5 @@ class word2vecFeature:
             val, prob = result
             results.append(val)
 
-        ret_val = ' '.join(results)
+        ret_val = u' '.join(results).encode('utf-8').strip()
         queue.put((ret_val, channel))
