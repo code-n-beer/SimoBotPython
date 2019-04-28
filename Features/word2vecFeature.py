@@ -19,7 +19,11 @@ class word2vecFeature:
         y = words[2]
         z = words[3]
 
-        m = self.model.wv.most_similar (positive=[z, x], negative=[y])
+        try:
+            m = self.model.wv.most_similar (positive=[z, x], negative=[y])
+        except(KeyError):
+            queue.put(('Not found', channel))
+
         results = []
         for result in m:
             val, prob = result
@@ -36,7 +40,10 @@ class word2vecFeature:
             return
 
         word = words[1]
-        m = self.model.wv.most_similar (positive=word)
+        try:
+            m = self.model.wv.most_similar (positive=word)
+        except(KeyError):
+            queue.put((word + ' not found', channel))
         results = []
         for result in m:
             val, prob = result
