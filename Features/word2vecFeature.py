@@ -25,7 +25,7 @@ class word2vecFeature:
             val, prob = result
             results.append(val)
 
-        ret_val = u' '.join(results).encode('utf-8').strip()
+        ret_val = ' '.join(results).decode('utf-8').strip()
 
         queue.put((ret_val, channel))
 
@@ -42,5 +42,5 @@ class word2vecFeature:
             val, prob = result
             results.append(val)
 
-        ret_val = u' '.join(results).encode('utf-8').strip()
+        ret_val = ' '.join(results).decode('utf-8').strip()
         queue.put((ret_val, channel))
