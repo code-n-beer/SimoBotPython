@@ -42,7 +42,7 @@ class word2vecFeature:
 
         word = words[1]
         try:
-            m = self.model.wv.most_similar (positive=word)
+            m = self.model.wv.most_similar (positive=word.lower())
         except(KeyError):
             queue.put((word + ' not found', channel))
         results = []
@@ -63,7 +63,7 @@ class word2vecFeature:
         results = []
         for word in words:
             try:
-                m = self.model.wv.most_similar (positive=word)[0][0]
+                m = self.model.wv.most_similar (positive=word.lower())[0][0]
                 results.append(m)
             except(KeyError):
                 results.append(word)
