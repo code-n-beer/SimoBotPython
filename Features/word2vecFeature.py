@@ -39,6 +39,8 @@ class word2vecFeature:
         if len(words) < 2:
             print("nothing to similarize")
             return
+        if len(words) > 2:
+            queue.put(('only one argument please, use similarn for many', channel))
 
         word = words[1]
         try:
