@@ -5,6 +5,7 @@ class word2vecFeature:
     def __init__(self):
        self.cmdpairs = {
            "!similar": self.execute,
+           "!similarn": self.executen,
            "!likexytoz": self.executexyz
        }
        self.model = gensim.models.Word2Vec.load("./Resources/word2vec_2016-2019_04.model")
@@ -48,6 +49,24 @@ class word2vecFeature:
         for result in m:
             val, prob = result
             results.append(val)
+
+        ret_val = u' '.join(results).encode('utf-8').strip()
+        queue.put((ret_val, channel))
+
+    def executen(self, queue, nick, msg, channel):
+        words = msg.split()
+        if len(words) < 2:
+            print("nothing to similarize")
+            return
+
+        words = words[1:]
+        results = []
+        for word in words:
+            try:
+                m = self.model.wv.most_similar (positive=word)[0][0]
+                results.append(m)
+            except(KeyError):
+                results.append('')
 
         ret_val = u' '.join(results).encode('utf-8').strip()
         queue.put((ret_val, channel))
