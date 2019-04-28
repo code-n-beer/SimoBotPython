@@ -66,7 +66,7 @@ class word2vecFeature:
                 m = self.model.wv.most_similar (positive=word)[0][0]
                 results.append(m)
             except(KeyError):
-                results.append('')
+                results.append(word)
 
         ret_val = u' '.join(results).encode('utf-8').strip()
         queue.put((ret_val, channel))
