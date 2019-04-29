@@ -181,7 +181,7 @@ class word2vecFeature:
                 m = wv.most_similar (positive=word.lower(), topn=100)
                 tops = self.get_top(m)
                 top = random.choice(tops)
-                print(word + " ".join(x[0] for x in tops))
+                #print(word + " ".join(x[0] for x in tops))
                 results.append(top[0])
             except(KeyError):
                 results.append(word)
