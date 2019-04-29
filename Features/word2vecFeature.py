@@ -1,5 +1,6 @@
 import gensim 
 from gensim.models import KeyedVectors
+import random
 
 class word2vecFeature:
 
@@ -10,6 +11,9 @@ class word2vecFeature:
 
            "!similarn": self.execute_n_cnb,
            "!similarnyle": self.execute_n_yle,
+
+           "!similarnr": self.execute_n_cnb_r,
+           "!similarnyler": self.execute_n_yle_r,
 
            "!xminusyplusz": self.execute_xyz_cnb,
            "!xminusypluszyle": self.execute_xyz_yle,
@@ -136,6 +140,49 @@ class word2vecFeature:
             try:
                 m = wv.most_similar (positive=word.lower())[0][0]
                 results.append(m)
+            except(KeyError):
+                results.append(word)
+
+        ret_val = u' '.join(results).encode('utf-8').strip()
+        queue.put((ret_val, channel))
+
+    def execute_n_cnb_r(self, queue, nick, msg, channel):
+        self.execute_n_r(queue, nick, msg, channel, self.cnb_wv)
+
+    def execute_n_yle_r(self, queue, nick, msg, channel):
+        self.execute_n_r(queue, nick, msg, channel, self.yle_wv)
+
+    def get_top(self, results):
+        top_p = results[0][1]
+        p = top_p
+        top_5p = []
+        idx = 0
+        while p > top_p - 0.10 and idx < len(results):
+            top_5p.append(results[idx])
+            p = results[idx][1]
+            #print(p)
+            idx+=1
+
+        if len(top_5p) < 20:
+            return results[:20]
+        return top_5p
+
+    def execute_n_r(self, queue, nick, msg, channel, wv):
+        words = msg.split()
+        if len(words) < 2:
+            print("nothing to similarize")
+            return
+
+        words = words[1:]
+        results = []
+        for word in words:
+            try:
+                #m = wv.most_similar (positive=word.lower())
+                m = wv.most_similar (positive=word.lower(), topn=100)
+                tops = self.get_top(m)
+                top = random.choice(tops)
+                print(word + " ".join(x[0] for x in tops))
+                results.append(top[0])
             except(KeyError):
                 results.append(word)
 
