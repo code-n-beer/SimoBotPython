@@ -19,7 +19,7 @@ class word2vecFeature:
            "!xminusypluszyle": self.execute_xyz_yle,
 #            "!xminusyplusz": self.execute_x_minus_y_plus_z
        }
-       self.cnb_wv = gensim.models.Word2Vec.load("./Resources/word2vec_2014-2019_04.model").wv
+       self.cnb_wv = KeyedVectors.load("./Resources/word2vec_2014-2019_04")
        self.yle_wv = KeyedVectors.load("./Resources/word2vec_yle_dersb")
 
     #def x_plus_y(self, x, y):
