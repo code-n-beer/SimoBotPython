@@ -19,8 +19,12 @@ class word2vecFeature:
            "!xminusypluszyle": self.execute_xyz_yle,
 #            "!xminusyplusz": self.execute_x_minus_y_plus_z
        }
-       self.cnb_wv = KeyedVectors.load("./Resources/word2vec_2014-2019_04.model")
-       self.yle_wv = KeyedVectors.load("./Resources/word2vec_yle_dersb")
+       #self.cnb_wv = KeyedVectors.load_word2vec_format("./Resources/word2vec_2014-2019_04.model", limit=1000, binary=False)
+       #self.cnb_wv = KeyedVectors.load("./Resources/word2vec_2014-2019_04.model")
+       #self.cnb_wv.wv.save_word2vec_format('./Resources/w2v_cnb'+".bin", binary=True)
+       
+       self.yle_wv = KeyedVectors.load_word2vec_format("./Resources/w2v_yle.bin", limit=250000, binary=True)
+       self.cnb_wv = KeyedVectors.load_word2vec_format("./Resources/w2v_cnb.bin", limit=250000, binary=True)
 
     #def x_plus_y(self, x, y):
     #    return self.model.wv.get_vector(x) + self.model.wv.get_vector(y)
