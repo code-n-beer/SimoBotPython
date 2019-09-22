@@ -21,7 +21,12 @@ class hotwordsFeature:
             time_type = msg.split()[2]
             periods = msg.split()[3]
 
-            words = process(time_type, int(periods), int(from_ago))
+            try:
+                offset = msg.split()[4]
+            except:
+                offset = 0
+
+            words = process(time_type, int(periods), int(from_ago), int(offset))
             print('words', words)
             words = ', '.join(words)
             print('words', words)
@@ -36,17 +41,12 @@ def get_sorted_counts(tags):
     sort_ind = np.argsort(-counts)
     return unique[sort_ind], counts[sort_ind]
 
-regex = re.compile(u'[^a-zA-ZäÄöÖåÅ:)(!<>\\/]') # with all basic special chars
+regex = re.compile(u'[^a-zA-ZäÄöÖåÅ:)(!<>\\\/]') # with all basic special chars
 #regex = re.compile(u'[^a-zA-ZäÄöÖåÅ]')
 def count_words(messages):
     lines = [line.split(' ') for line in messages]
-    lines = np.array(filter(lambda x: len(x) >= 2, [regex.sub('', word).lower() for x in lines for word in x]))
+    lines = np.array(filter(lambda x: len(x) >= 2, [regex.sub('', word).lower() for x in lines for word in x])) #withlowercasing
     uniqs, counts = get_sorted_counts(lines)
-    #print('uniqs shape', uniqs.shape)
-    #print('uniqs', uniqs[:10])
-    #print('counts', counts[:10])
-    #print('line shape', lines.shape)
-    #print('line first 10', lines[:10])
     return uniqs, counts
 
 def get_common_uniques(uniqs):
@@ -69,41 +69,50 @@ def build_vec(all_tags, tags, counts):
             vec[idx_all] = counts[idx]
     return vec
 
-included_types = ['PROPN', 'NOUN', 'ADJ', 'VERB']
+#included_types = ['PROPN', 'NOUN', 'ADJ', 'VERB']
+included_types = ['PROPN', 'NOUN']
 def filter_word_types(words, word_types):
     filtered_sentences = []
+    filtered_types = []
     for idx, sentence in enumerate(words):
-        #print('filtering ', idx)
-        #print('filtering sentence', sentence)
         filtered_words = []
+        filtered_types_sentence = []
         sentence_types = word_types[idx]
-        for word, type in itertools.izip(sentence.split(), sentence_types.split()):
+        for word, word_type in itertools.izip(sentence.split(), sentence_types.split()):
             #print(u'word {} type {}'.format(word, type))
-            if type in included_types:
+            if word_type in included_types:
                 filtered_words.append(word)
+                filtered_types_sentence.append(word_type)
         
         sentence = " ".join(filtered_words)
         filtered_sentences.append(sentence)
+        filtered_types.append(filtered_types_sentence)
     
-    return np.array(filtered_sentences)
+    return np.array(filtered_sentences), np.array(filtered_types)
 
+def build_type_dict(sentences, types_list):
+    sentences_flat = [y for x in [x.split() for x in sentences] for y in x]
+    types_flat = [y for x in types_list for y in x]
 
+    print('sentflat', len(sentences_flat))
+    print('typesflat', len(types_flat))
+    dictionary = dict(zip(sentences_flat, types_flat))
 
-def process(time_type, periods, from_ago):
+    df_types = pd.DataFrame(types_flat, index=sentences_flat, columns=['type'])
+    df_types = df_types.loc[~df_types.index.duplicated(keep='first')]
+
+    return df_types
+
+def process(time_type, periods, from_ago, offset=0):
     print('processing hot words in {} periods since {} {} ago'.format(periods, from_ago, time_type))
 
     df = pd.read_sql_query("select * from logs;", conn)
-    #df['timestamp'] = pd.to_datetime(df.timestamp, utc=True)
     df['timestamp'] = pd.to_datetime(df.timestamp)
     df['timestamp'] = df['timestamp'].dt.tz_localize('UTC').dt.tz_convert('Europe/Helsinki')
 
     print(df.iloc[0])
-    #print(df.timestamp)
-
 
     parameter = {time_type: from_ago}
-    #parameter = {'seconds': from_ago}
-    #dates = pd.date_range(start=pd.Timestamp.now() - pd.Timedelta(seconds=from_ago), end=pd.Timestamp.now(), periods=periods+1, tz='Europe/Helsinki')
     dates = pd.date_range(start=pd.Timestamp.now() - pd.Timedelta(**parameter), end=pd.Timestamp.now(), periods=periods+1, tz='Europe/Helsinki')
     print('len', len(dates))
 
@@ -122,11 +131,11 @@ def process(time_type, periods, from_ago):
 
         messages = df_range.lemmatized_message.values
         types = df_range.word_types.values
-        messages = filter_word_types(messages, types)
+        messages_filtered, _ = filter_word_types(messages, types)
         #print('messages len', messages.shape)
         #print('messages flattened', messages.flatten().shape)
 
-        uniqs, counts = count_words(messages)
+        uniqs, counts = count_words(messages_filtered)
         uniqs_all.append(uniqs)
         counts_all.append(counts)
 
@@ -135,9 +144,11 @@ def process(time_type, periods, from_ago):
         return []
 
     print('calculate total occurences of words')
-    total_uniqs, total_counts = count_words(df.lemmatized_message.values)
+    messages_filtered, types_filtered = filter_word_types(df.lemmatized_message.values, df.word_types.values)
+    df_types = build_type_dict(messages_filtered, types_filtered)
+    total_uniqs, total_counts = count_words(messages_filtered)
+    #ktotal_uniqs, total_counts = count_words(df.lemmatized_message.values)
     df_totals = pd.DataFrame(total_counts, index=total_uniqs, columns=['count'])
-    print('totals', df_totals)
 
     common_uniqs, common_counts = get_common_uniques(uniqs_all)
     print('common uniqs shape', common_uniqs.shape)
@@ -146,40 +157,29 @@ def process(time_type, periods, from_ago):
     vecs = []
     for idx in xrange(0, len(dates)-1):
         print('build vec', idx)
-        vec = build_vec(common_uniqs, uniqs_all[idx], counts_all[idx])
-        #print(vec)
-        vec = tuple(vec)
-        #print(vec)
+        vec = tuple(build_vec(common_uniqs, uniqs_all[idx], counts_all[idx]))
         vecs.append(vec)
 
     vecs = np.array(vecs)
 
     columns = common_uniqs
-    #print('vecs', vecs[0])
-    #print('columns', columns)
-    #print('len vecs', len(vecs))
-    #print('len vecs 0 ', len(vecs[0]))
-    #print('len columns', len(columns))
     print('create records')
     df_counts = pd.DataFrame.from_records(vecs, columns=columns)
     df_counts.loc['mean'] = df_counts.mean()
     df_counts.loc['std'] = df_counts.std()
-    #df_counts['mean'] = df_counts.mean()
-    #df_counts['std'] = df_counts.std()
 
     print('calculate zscore')
     df_counts_zscore = (df_counts - df_counts.loc['mean']) / df_counts.loc['std']
 
-    last_idx = len(df_counts_zscore) - 1 - 2
+    last_idx = len(df_counts_zscore) - 1 - 2 - offset
     row = df_counts_zscore.loc[last_idx]
-    #row = row[row.index != 'mean']
-    #row = row[row.index != 'std']
-    #row.dropna(inplace=True)
 
     print('build dataframe')
-    df = pd.DataFrame({'word': common_uniqs, 'zscore': row, 'uniq_days_mentioned': common_counts}).join(df_totals)
+    df = pd.DataFrame({'word': common_uniqs, 'zscore': row, 'uniq_days_mentioned': common_counts}).join(df_totals).join(df_types)
     df_sorted = df.sort_values(by=['zscore', 'uniq_days_mentioned', 'count'], ascending=[False, False, False])
+    print(df_sorted[:25])
 
+    #top_words = df_sorted[:25][['word', 'type']] # include word type
     top_words = df_sorted[:25].word.values
     print('done')
     return top_words
