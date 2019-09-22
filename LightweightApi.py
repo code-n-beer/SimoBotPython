@@ -7,6 +7,7 @@ import time
 from multiprocessing import Process
 from multiprocessing import Queue
 import urllib2 as urllib
+import sys
 
 class SimoLightweightApi:
 
@@ -68,6 +69,7 @@ class SimoLightweightApi:
       p.start()
 
       print("waiting for command result...")
+      sys.stdout.flush()
       result = ""
       i = 0
       while i < 1280:      # wait 32 seconds
@@ -77,12 +79,14 @@ class SimoLightweightApi:
           break
         i = i + 1
       print("wait/command done, result:", result)
+      sys.stdout.flush()
 
       try:
         result = result.encode('utf-8')
       except UnicodeDecodeError:
         print 'already in unicode'
       print('received message', result)
+      sys.stdout.flush()
 
       self.wfile.write(result)
 
