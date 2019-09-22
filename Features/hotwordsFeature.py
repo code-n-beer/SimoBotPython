@@ -69,7 +69,7 @@ def build_vec(all_tags, tags, counts):
             vec[idx_all] = counts[idx]
     return vec
 
-included_types = ['PROPN', 'NOUN', 'ADJ', 'VERB', 'X']
+included_types = ['PROPN', 'NOUN', 'ADJ', 'VERB']
 def filter_word_types(words, word_types):
     filtered_sentences = []
     for idx, sentence in enumerate(words):
@@ -180,7 +180,7 @@ def process(time_type, periods, from_ago):
     df = pd.DataFrame({'word': common_uniqs, 'zscore': row, 'uniq_days_mentioned': common_counts}).join(df_totals)
     df_sorted = df.sort_values(by=['zscore', 'uniq_days_mentioned', 'count'], ascending=[False, False, False])
 
-    top_words = df_sorted[:5].word.values
+    top_words = df_sorted[:25].word.values
     print('done')
     return top_words
 
