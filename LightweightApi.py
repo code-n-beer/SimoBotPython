@@ -33,7 +33,7 @@ class SimoLightweightApi:
         length = int(self.headers['Content-Length'])
       except Exception:
         print('content length wrong')
-        self.wfile.write('')
+        self.wfile.write('content length wrong')
         return
       request = self.rfile.read(length)
       print urlparse.parse_qs(request)
@@ -41,7 +41,7 @@ class SimoLightweightApi:
       request = urlparse.parse_qs(request)
       if not 'command' in request or len(request['command'][0]) > 510:
         print('not command')
-        self.wfile.write('')
+        self.wfile.write('not command')
         return
       message = request['command'][0].strip()
       try:
@@ -61,7 +61,7 @@ class SimoLightweightApi:
         command = self.server.commands[commandStr]
       except LookupError:
         print('lookup error')
-        self.wfile.write('')
+        self.wfile.write('lookup error')
         return
 
       q = Queue()
