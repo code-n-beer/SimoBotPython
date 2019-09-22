@@ -108,12 +108,14 @@ def process(time_type, periods, from_ago, offset=0):
 
     df = pd.read_sql_query("select * from logs;", conn)
     df['timestamp'] = pd.to_datetime(df.timestamp)
-    df['timestamp'] = df['timestamp'].dt.tz_localize('UTC').dt.tz_convert('Europe/Helsinki')
+    #df['timestamp'] = df['timestamp'].dt.tz_localize('UTC').dt.tz_convert('Europe/Helsinki')
 
     print(df.iloc[0])
 
     parameter = {time_type: from_ago}
-    dates = pd.date_range(start=pd.Timestamp.now() - pd.Timedelta(**parameter), end=pd.Timestamp.now(), periods=periods+1, tz='Europe/Helsinki')
+    now = pd.Timestamp.now()
+    print('now', now)
+    dates = pd.date_range(start=now - pd.Timedelta(**parameter), end=pd.Timestamp.now(), periods=periods+1)
     print('len', len(dates))
 
     #words = []
