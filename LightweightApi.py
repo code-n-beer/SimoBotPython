@@ -64,6 +64,7 @@ class SimoLightweightApi:
       p = Process(target=command, args=(q, sender, message, '#simobot'))
       p.start()
 
+      print("waiting for command result...")
       result = ""
       i = 0
       while i < 1280:      # wait 32 seconds
@@ -72,12 +73,13 @@ class SimoLightweightApi:
           result = q.get()[0]
           break
         i = i + 1
+      print("wait/command done, result:", result)
 
       try:
         result = result.encode('utf-8')
       except UnicodeDecodeError:
         print 'already in unicode'
-      print result
+      print('received message', result)
 
       self.wfile.write(result)
 
