@@ -66,7 +66,7 @@ class SimoLightweightApi:
 
       result = ""
       i = 0
-      while i < 640:      # wait 16 seconds
+      while i < 1280:      # wait 32 seconds
         time.sleep(0.025)
         if not q.empty():
           result = q.get()[0]

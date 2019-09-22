@@ -1,5 +1,6 @@
 # coding=utf-8
 
+import itertools
 import pandas as pd
 import sqlite3
 import numpy as np
@@ -68,6 +69,26 @@ def build_vec(all_tags, tags, counts):
             vec[idx_all] = counts[idx]
     return vec
 
+included_types = ['PROPN', 'NOUN', 'ADJ', 'VERB', 'X']
+def filter_word_types(words, word_types):
+    filtered_sentences = []
+    for idx, sentence in enumerate(words):
+        #print('filtering ', idx)
+        #print('filtering sentence', sentence)
+        filtered_words = []
+        sentence_types = word_types[idx]
+        for word, type in itertools.izip(sentence.split(), sentence_types.split()):
+            #print(u'word {} type {}'.format(word, type))
+            if type in included_types:
+                filtered_words.append(word)
+        
+        sentence = " ".join(filtered_words)
+        filtered_sentences.append(sentence)
+    
+    return np.array(filtered_sentences)
+
+
+
 def process(time_type, periods, from_ago):
     print('processing hot words in {} periods since {} {} ago'.format(periods, from_ago, time_type))
 
@@ -100,6 +121,8 @@ def process(time_type, periods, from_ago):
         count_in_range += len(df_range)
 
         messages = df_range.lemmatized_message.values
+        types = df_range.word_types.values
+        messages = filter_word_types(messages, types)
         #print('messages len', messages.shape)
         #print('messages flattened', messages.flatten().shape)
 
