@@ -6,7 +6,7 @@ import numpy as np
 import re
 #conn = sqlite3.connect("/simojs-data/simojs-logs.sqlite")
 #conn = sqlite3.connect("./Resources/simojs-logs-lemmatized.sqlite")
-conn = sqlite3.connect("/simojs-data/simojs-logs-lemmatized.sqlite")
+conn = sqlite3.connect("/simojs-data/simojs-logs-lemmatized2.sqlite")
 
 class hotwordsFeature:
     def __init__(self):
