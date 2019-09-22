@@ -35,8 +35,8 @@ def get_sorted_counts(tags):
     sort_ind = np.argsort(-counts)
     return unique[sort_ind], counts[sort_ind]
 
-#regex = re.compile('[^a-zA-ZäÄöÖåÅ:)(!<>\\/]') # with all basic special chars
-regex = re.compile(u'[^a-zA-ZäÄöÖåÅ]')
+regex = re.compile(u'[^a-zA-ZäÄöÖåÅ:)(!<>\\/]') # with all basic special chars
+#regex = re.compile(u'[^a-zA-ZäÄöÖåÅ]')
 def count_words(messages):
     lines = [line.split(' ') for line in messages]
     lines = np.array(filter(lambda x: len(x) >= 2, [regex.sub('', word).lower() for x in lines for word in x]))
@@ -137,12 +137,14 @@ def process(time_type, periods, from_ago):
     #print('len vecs', len(vecs))
     #print('len vecs 0 ', len(vecs[0]))
     #print('len columns', len(columns))
+    print('create records')
     df_counts = pd.DataFrame.from_records(vecs, columns=columns)
     df_counts.loc['mean'] = df_counts.mean()
     df_counts.loc['std'] = df_counts.std()
     #df_counts['mean'] = df_counts.mean()
     #df_counts['std'] = df_counts.std()
 
+    print('calculate zscore')
     df_counts_zscore = (df_counts - df_counts.loc['mean']) / df_counts.loc['std']
 
     last_idx = len(df_counts_zscore) - 1 - 2
@@ -151,10 +153,12 @@ def process(time_type, periods, from_ago):
     #row = row[row.index != 'std']
     #row.dropna(inplace=True)
 
+    print('build dataframe')
     df = pd.DataFrame({'word': common_uniqs, 'zscore': row, 'uniq_days_mentioned': common_counts}).join(df_totals)
     df_sorted = df.sort_values(by=['zscore', 'uniq_days_mentioned', 'count'], ascending=[False, False, False])
 
     top_words = df_sorted[:5].word.values
+    print('done')
     return top_words
 
 
