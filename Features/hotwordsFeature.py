@@ -41,7 +41,7 @@ def get_sorted_counts(tags):
     sort_ind = np.argsort(-counts)
     return unique[sort_ind], counts[sort_ind]
 
-regex = re.compile(u'[^a-zA-ZäÄöÖåÅ:)(!<>\\\/]') # with all basic special chars
+regex = re.compile(u'[^a-zA-ZäÄöÖåÅ#:)(!<>\\\/]') # with all basic special chars
 #regex = re.compile(u'[^a-zA-ZäÄöÖåÅ]')
 def count_words(messages):
     lines = [line.split(' ') for line in messages]
