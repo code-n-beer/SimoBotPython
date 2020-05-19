@@ -24,7 +24,7 @@ class word2vecFeature:
        #self.cnb_wv.wv.save_word2vec_format('./Resources/w2v_cnb'+".bin", binary=True)
        
        self.yle_wv = KeyedVectors.load_word2vec_format("./Resources/w2v_yle.bin", limit=100000, binary=True)
-       self.cnb_wv = KeyedVectors.load_word2vec_format("./Resources/w2v_cnb.bin", limit=100000, binary=True)
+       self.cnb_wv = KeyedVectors.load_word2vec_format("./Resources/w2v_cnb.bin", binary=True)
 
     #def x_plus_y(self, x, y):
     #    return self.model.wv.get_vector(x) + self.model.wv.get_vector(y)
