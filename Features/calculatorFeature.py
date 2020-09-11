@@ -31,6 +31,8 @@ class calculatorFeature:
     if not formula:
       return ""
 
+    formula = formula.replace(' ','')
+
     # deal with parenthesis
     parenthStart = formula.find("(")
     if parenthStart > -1:
