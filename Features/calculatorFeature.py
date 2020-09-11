@@ -118,3 +118,22 @@ class calculatorFeature:
       return True
     except ValueError:
       return False
+
+if __name__ == "__main__":
+    c = calculatorFeature()
+    assert c.calculate(" 1+1") == "2.0"
+    assert c.calculate("1+1 ") == "2.0"
+    assert c.calculate("1 + 1") == "2.0"
+    assert c.calculate("1 +1") == "2.0"
+    assert c.calculate("1+1 ") == "2.0"
+
+    assert c.calculate("1+1") == "2.0"
+    assert c.calculate("1*3") == "3.0"
+    assert c.calculate("1* 3") == "3.0"
+    assert c.calculate("2/(3-1)") == "1.0"
+    assert c.calculate("2 /(3-1)") == "1.0"
+    assert c.calculate("-9+1") == "-8.0"
+    assert c.calculate("5%3") == "2.0"
+    assert c.calculate("5.1%3") == "2.1"
+    assert c.calculate("3^3+1") == "28.0"
+    assert c.calculate("3^ 3+   1") == "28.0"
