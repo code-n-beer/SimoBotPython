@@ -167,9 +167,9 @@ class word2vecFeature:
             #print(p)
             idx+=1
 
-        if len(top_5p) < 20:
-            return results[:20]
-        return top_5p
+        if len(top_5p) < 8:
+            return top_5p
+        return top_5p[:8]
 
     def execute_n_r(self, queue, nick, msg, channel, wv):
         words = msg.split()
