@@ -82,9 +82,9 @@ class twitterFeature:
 
     def tweet(self, queue, nick, msg, channel):
         tweet = msg[7:]
-        if len(tweet) > 140:
-            print "tweet limit 140 characters"
-            queue.put(("Tweet limit is 140 characters", channel))
+        if len(tweet) > 280:
+            print "tweet limit 280 characters"
+            queue.put(("Tweet limit is 280 characters", channel))
             return
         elif len(msg.split()) < 2:
             print "nothing to tweet"
