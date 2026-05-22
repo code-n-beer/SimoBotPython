@@ -53,7 +53,11 @@ modules = []
 def loadFeatures():
     classes = inspect.getmembers(sys.modules["Features"], inspect.isclass)
     for featureName, featureClass in classes:
-        feature = featureClass();
+        try:
+            feature = featureClass()
+        except Exception as e:
+            print("Skipping feature {}: {}".format(featureName, e))
+            continue
         for cmd in feature.cmdpairs:
             commands[cmd] = feature.cmdpairs[cmd]
 
